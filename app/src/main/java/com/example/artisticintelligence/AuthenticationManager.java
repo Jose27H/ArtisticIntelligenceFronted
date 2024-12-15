@@ -21,10 +21,8 @@ public class AuthenticationManager {
         this.context = context;
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.server_client_id)) // OAuth client ID
                 .requestEmail()
                 .build();
-
         googleSignInClient = GoogleSignIn.getClient(context, gso);
     }
 
