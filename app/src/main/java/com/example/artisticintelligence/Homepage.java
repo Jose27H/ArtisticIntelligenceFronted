@@ -93,7 +93,7 @@ public class Homepage extends AppCompatActivity {
             authManager.handleSignInResult(task, new AuthenticationManager.SignInCallback() {
                 @Override
                 public void onSuccess(GoogleSignInAccount account) {
-                    Toast.makeText(Homepage.this, "Welcome, " + account.getDisplayName(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(Homepage.this, "Welcome, " + account.getDisplayName() , Toast.LENGTH_LONG).show();
                     onLoginSuccess(account);
                 }
 
@@ -138,7 +138,7 @@ public class Homepage extends AppCompatActivity {
         });
     }
     private void sendMessage() {
-        String message = "Hello, server!";
+        String message = "u a bitch";
         String token = "your-token-here"; // Replace with actual token if needed
 
         networkSender.sendHttpRequest("/message", message, token, new NetworkSender.ResponseCallback() {
