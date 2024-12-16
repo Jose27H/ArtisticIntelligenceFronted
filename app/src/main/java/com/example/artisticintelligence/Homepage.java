@@ -42,8 +42,8 @@ public class Homepage extends AppCompatActivity {
         initializeAuthManager();
         initializeNetworkSender();
 
-//        logout();
-        checkIfAlreadySignedIn();
+        logout();
+//        checkIfAlreadySignedIn();
     }
 
 
