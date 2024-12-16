@@ -176,9 +176,9 @@ public class Homepage extends AppCompatActivity {
 
     }
 
-    private void navigateToWelcomeActivity(String googleId, String token) {
+    private void navigateToWelcomeActivity(String userid, String token) {
         Intent intent = new Intent(this, Welcome.class);
-        intent.putExtra("GOOGLE_ID", googleId);
+        intent.putExtra("USER_ID", userid);
         intent.putExtra("GOOGLE_TOKEN", token);// Pass the Google ID as an extra
         startActivity(intent);
 

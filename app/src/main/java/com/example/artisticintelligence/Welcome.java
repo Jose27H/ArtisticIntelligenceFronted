@@ -1,7 +1,10 @@
 package com.example.artisticintelligence;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +23,11 @@ public class Welcome extends AppCompatActivity {
 
     String authToken;
 
+    Button generateImageButton;
+    Button viewGeneratedImageButton;
+
+    Button viewImagesFromCommunityButton;
+
     private static final String TAG = "Welcome";
     private NetworkSender networkSender;
     @Override
@@ -27,14 +35,29 @@ public class Welcome extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_welcome);
-        nameView = findViewById(R.id.header_text);
-       userId = getIntent().getStringExtra("GOOGLE_ID");
+        setListeners();
+       userId = getIntent().getStringExtra("USER_ID");
        authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
-
-
         networkSender = new NetworkSender();
       loadName();
 
+    }
+
+    private void setListeners(){
+        nameView = findViewById(R.id.header_text);
+        generateImageButton = findViewById(R.id.generate_image_button);
+        viewGeneratedImageButton = findViewById(R.id.view_generated_images_button);
+        viewImagesFromCommunityButton = findViewById(R.id.view_community_images_button);
+
+        generateImageButton.setOnClickListener(this::clickGenerateImage);
+
+    }
+
+    private void clickGenerateImage(View v){
+        Intent intent = new Intent(this, PromptActivity.class);
+        intent.putExtra("USER_ID", userId);
+        intent.putExtra("GOOGLE_TOKEN", authToken);// Pass the Google ID as an extra
+        startActivity(intent);
     }
 
     private void loadName() {
@@ -86,5 +109,6 @@ public class Welcome extends AppCompatActivity {
                 Toast.makeText(Welcome.this, message, Toast.LENGTH_LONG).show()
         );
     }
+
 
 }
