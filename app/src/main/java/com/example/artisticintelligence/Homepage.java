@@ -26,7 +26,7 @@ public class Homepage extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 1001;
     private SignInButton googleSignInButton;
-    private Button sendButton;
+
     private NetworkSender networkSender;
     private AuthenticationManager authManager;
 
@@ -42,7 +42,7 @@ public class Homepage extends AppCompatActivity {
         initializeAuthManager();
         initializeNetworkSender();
 
-        logout();
+//        logout();
         checkIfAlreadySignedIn();
     }
 
@@ -50,10 +50,10 @@ public class Homepage extends AppCompatActivity {
 
         private void initializeViews() {
             googleSignInButton = findViewById(R.id.google_sign_in_button);
-            sendButton = findViewById(R.id.button);
+
 
             googleSignInButton.setOnClickListener(this:: signIn);
-            sendButton.setOnClickListener(this::onClick);
+
         }
 
 
@@ -74,7 +74,7 @@ public class Homepage extends AppCompatActivity {
         } else {
             Log.d(TAG, "User not signed in. Showing Google Sign-In button.");
             googleSignInButton.setVisibility(View.VISIBLE);
-            sendButton.setVisibility(View.GONE);
+
         }
     }
 
@@ -107,21 +107,17 @@ public class Homepage extends AppCompatActivity {
     private void onLoginSuccess(GoogleSignInAccount account) {
         // Hide the Google Sign-In button and show the Send Message button
         googleSignInButton.setVisibility(View.GONE);
-        sendButton.setVisibility(View.VISIBLE);
 
         // Store the token to use in sendMessage
         String idToken = account.getIdToken();
 
         if (idToken != null) {
             sendMessageWithToken(idToken);
-            navigateToWelcomeActivity(userId);
+
         }
     }
 
-    public void onClick(View v) {
-        sendButton.setEnabled(false);
 
-    }
 
     private void sendMessageWithToken(String token) {
         String message = "Login Successful! Sending token to backend.";
@@ -139,11 +135,8 @@ public class Homepage extends AppCompatActivity {
 
                     // Extract the user_id
                  userId = jsonResponse.getString("user_id");
+                 navigateToWelcomeActivity(userId, token);
 
-
-
-
-                    runOnUiThread(() -> sendButton.setEnabled(true));
 
                 } catch (JSONException e) {
                     showToast("Error parsing server response: " + e.getMessage());
@@ -153,33 +146,10 @@ public class Homepage extends AppCompatActivity {
             @Override
             public void onError(String errorMessage) {
                 showToast("Error sending token: " + errorMessage);
-                runOnUiThread(() -> sendButton.setEnabled(true));
+
             }
         });
     }
-
-//    private void sendMessage() {
-//        String message = "u a bitch";
-//        String token = "your-token-here"; // Replace with actual token if needed
-//
-//        // Create the JSON payload
-//        String jsonPayload = String.format("{\"message\": \"%s\", \"token\": \"%s\"}", message, token);
-//
-//        // Use the updated sendHttpRequest method
-//        networkSender.sendHttpRequest("/message", jsonPayload, null, new NetworkSender.ResponseCallback() {
-//            @Override
-//            public void onSuccess(String response) {
-//                showToast("Success: " + response);
-//                runOnUiThread(() -> sendButton.setEnabled(true));
-//            }
-//
-//            @Override
-//            public void onError(String errorMessage) {
-//                showToast("Error: " + errorMessage);
-//                runOnUiThread(() -> sendButton.setEnabled(true));
-//            }
-//        });
-//    }
 
 
     private void showToast(final String message) {
@@ -202,13 +172,14 @@ public class Homepage extends AppCompatActivity {
     // Reset UI to show the Google Sign-In button
     private void resetUIAfterLogout() {
         googleSignInButton.setVisibility(View.VISIBLE);
-        sendButton.setVisibility(View.GONE);
+
 
     }
 
-    private void navigateToWelcomeActivity(String googleId) {
+    private void navigateToWelcomeActivity(String googleId, String token) {
         Intent intent = new Intent(this, Welcome.class);
-        intent.putExtra("GOOGLE_ID", googleId); // Pass the Google ID as an extra
+        intent.putExtra("GOOGLE_ID", googleId);
+        intent.putExtra("GOOGLE_TOKEN", token);// Pass the Google ID as an extra
         startActivity(intent);
 
     }

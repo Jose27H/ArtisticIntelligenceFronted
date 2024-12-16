@@ -13,12 +13,5 @@
         android:visibility="visible" />
 
     <!-- Send Message Button (Hidden until login is successful) -->
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="20dp"
-        android:visibility="gone"
-        android:text="Send Message" />
+
 </RelativeLayout>

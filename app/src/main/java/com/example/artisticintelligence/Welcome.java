@@ -2,6 +2,7 @@ package com.example.artisticintelligence;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +16,9 @@ import org.json.JSONObject;
 
 public class Welcome extends AppCompatActivity {
     String userId;
+    TextView nameView;
+
+    String authToken;
 
     private static final String TAG = "Welcome";
     private NetworkSender networkSender;
@@ -23,7 +27,11 @@ public class Welcome extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_welcome);
+        nameView = findViewById(R.id.header_text);
        userId = getIntent().getStringExtra("GOOGLE_ID");
+       authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
+
+
         networkSender = new NetworkSender();
       loadName();
 
@@ -32,7 +40,9 @@ public class Welcome extends AppCompatActivity {
     private void loadName() {
         try {
             JSONObject jsonPayload = new JSONObject();
+
             jsonPayload.put("user_id", userId);
+            Log.d(TAG, "Payload being sent: " + jsonPayload);
 
             networkSender.sendHttpRequest("/loadName", jsonPayload.toString(), null, new NetworkSender.ResponseCallback() {
                 @Override
@@ -50,7 +60,9 @@ public class Welcome extends AppCompatActivity {
 
                         // If no error, get the name
                         String name = jsonResponse.getString("name");
-                        showToast("Backend responded load " + name);
+                        runOnUiThread(() ->nameView.setText("Welcome: " + name));
+
+
 
                     } catch (JSONException e) {
                         Log.e(TAG, "Error parsing response", e);
