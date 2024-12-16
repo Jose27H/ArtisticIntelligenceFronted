@@ -33,20 +33,14 @@ public class Homepage extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_homepage);
 
-//        setupWindowInsets();
         initializeViews();
         initializeAuthManager();
         initializeNetworkSender();
+
+        logout();
         checkIfAlreadySignedIn();
     }
 
-//    private void setupWindowInsets() {
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-//            return insets;
-//        });
-//    }
 
 
         private void initializeViews() {
@@ -93,7 +87,7 @@ public class Homepage extends AppCompatActivity {
             authManager.handleSignInResult(task, new AuthenticationManager.SignInCallback() {
                 @Override
                 public void onSuccess(GoogleSignInAccount account) {
-                    Toast.makeText(Homepage.this, "Welcome, " + account.getDisplayName() , Toast.LENGTH_LONG).show();
+                    Toast.makeText(Homepage.this, "Welcome, " + account.getId() , Toast.LENGTH_LONG).show();
                     onLoginSuccess(account);
                 }
 
@@ -112,6 +106,7 @@ public class Homepage extends AppCompatActivity {
 
         // Store the token to use in sendMessage
         String idToken = account.getIdToken();
+
         if (idToken != null) {
             sendMessageWithToken(idToken);
         }
@@ -125,23 +120,34 @@ public class Homepage extends AppCompatActivity {
     private void sendMessageWithToken(String token) {
         String message = "Login Successful! Sending token to backend.";
 
-        networkSender.sendHttpRequest("/message", message, token, new NetworkSender.ResponseCallback() {
+        // Create the JSON payload
+        String jsonPayload = String.format("{\"message\": \"%s\", \"token\": \"%s\"}", message, token);
+
+        // Use the updated sendHttpRequest method
+        networkSender.sendHttpRequest("/login", jsonPayload, null, new NetworkSender.ResponseCallback() {
             @Override
             public void onSuccess(String response) {
-                showToast("Backend Response: " + response);
+                showToast("Success: " + response);
+                runOnUiThread(() -> sendButton.setEnabled(true));
             }
 
             @Override
             public void onError(String errorMessage) {
                 showToast("Error sending token: " + errorMessage);
+                runOnUiThread(() -> sendButton.setEnabled(true));
             }
         });
     }
+
     private void sendMessage() {
         String message = "u a bitch";
         String token = "your-token-here"; // Replace with actual token if needed
 
-        networkSender.sendHttpRequest("/message", message, token, new NetworkSender.ResponseCallback() {
+        // Create the JSON payload
+        String jsonPayload = String.format("{\"message\": \"%s\", \"token\": \"%s\"}", message, token);
+
+        // Use the updated sendHttpRequest method
+        networkSender.sendHttpRequest("/message", jsonPayload, null, new NetworkSender.ResponseCallback() {
             @Override
             public void onSuccess(String response) {
                 showToast("Success: " + response);
@@ -156,9 +162,28 @@ public class Homepage extends AppCompatActivity {
         });
     }
 
+
     private void showToast(final String message) {
         runOnUiThread(() ->
                 Toast.makeText(Homepage.this, message, Toast.LENGTH_LONG).show()
         );
+    }
+
+    private void logout() {
+        authManager.signOut(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                resetUIAfterLogout();
+            } else {
+                Toast.makeText(this, "Logout failed", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    // Reset UI to show the Google Sign-In button
+    private void resetUIAfterLogout() {
+        googleSignInButton.setVisibility(View.VISIBLE);
+        sendButton.setVisibility(View.GONE);
+
     }
 }

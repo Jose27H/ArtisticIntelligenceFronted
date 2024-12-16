@@ -20,6 +20,7 @@ public class NetworkSender {
     private static final String BASE_URL = "https://artisticintelligencebackend-production.up.railway.app";
     private static final int CONNECTION_TIMEOUT = 15000;
     private static final int READ_TIMEOUT = 15000;
+    private static final String CHARSET = "UTF-8";
 
     public interface ResponseCallback {
         void onSuccess(String response);
@@ -27,11 +28,9 @@ public class NetworkSender {
     }
 
     public NetworkSender() {
-        // Initialize with SSL verification disabled
-        disableSSLVerification();
+            disableSSLVerification(); // Only for development/debug builds
     }
 
-    // Warning: Only use this in development/testing
     private void disableSSLVerification() {
         try {
             TrustManager[] trustAllCerts = new TrustManager[]{
@@ -39,7 +38,9 @@ public class NetworkSender {
                         public X509Certificate[] getAcceptedIssuers() {
                             return new X509Certificate[0];
                         }
+
                         public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+
                         public void checkServerTrusted(X509Certificate[] certs, String authType) {}
                     }
             };
@@ -53,33 +54,31 @@ public class NetworkSender {
         }
     }
 
-    public void sendHttpRequest(String route, String message, String token, ResponseCallback callback) {
+    public void sendHttpRequest(String endpoint, String jsonPayload, String token, ResponseCallback callback) {
         new Thread(() -> {
             try {
-                String response = makeHttpRequest(route, message, token);
-                Log.d(TAG, "Request successful: " + response);
+                String response = makeHttpRequest(endpoint, jsonPayload, token);
                 callback.onSuccess(response);
             } catch (Exception e) {
-                Log.e(TAG, "Request failed: " + e.getMessage(), e);
-                callback.onError(e.getMessage());
+                callback.onError("Exception: " + e.getMessage());
             }
         }).start();
     }
 
-    private String makeHttpRequest(String route, String message, String token) throws Exception {
+    private String makeHttpRequest(String route, String jsonPayload, String token) throws Exception {
         HttpURLConnection conn = null;
         try {
             URL url = new URL(BASE_URL + route);
             conn = (HttpURLConnection) url.openConnection();
-            setupConnection(conn);
+            setupConnection(conn, "POST");
 
-            String jsonInputString = createJsonMessage(message, token);
-            sendRequest(conn, jsonInputString);
+            if (token != null) {
+                conn.setRequestProperty("Authorization", "Bearer " + token);
+            }
+
+            sendRequest(conn, jsonPayload);
 
             int responseCode = conn.getResponseCode();
-            Log.d(TAG, "Response Code: " + responseCode);
-            Log.d(TAG, "Response Message: " + conn.getResponseMessage());
-
             if (responseCode >= 200 && responseCode < 300) {
                 return readResponse(conn);
             } else {
@@ -93,16 +92,9 @@ public class NetworkSender {
         }
     }
 
-    private String createJsonMessage(String message, String token) {
-        return String.format("{\"message\": \"%s\", \"token\": \"%s\"}",
-                message,
-                token != null ? token : ""
-        );
-    }
-
-    private void setupConnection(HttpURLConnection conn) throws Exception {
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
+    private void setupConnection(HttpURLConnection conn, String method) throws Exception {
+        conn.setRequestMethod(method);
+        conn.setDoOutput(!method.equalsIgnoreCase("GET"));
         conn.setDoInput(true);
         conn.setUseCaches(false);
         conn.setConnectTimeout(CONNECTION_TIMEOUT);
@@ -113,16 +105,16 @@ public class NetworkSender {
         conn.setRequestProperty("User-Agent", "ArtisticIntelligence-Android");
     }
 
-    private void sendRequest(HttpURLConnection conn, String jsonInputString) throws Exception {
+    private void sendRequest(HttpURLConnection conn, String jsonPayload) throws Exception {
         try (OutputStream os = conn.getOutputStream()) {
-            byte[] input = jsonInputString.getBytes("UTF-8");
+            byte[] input = jsonPayload.getBytes(CHARSET);
             os.write(input, 0, input.length);
         }
     }
 
     private String readResponse(HttpURLConnection conn) throws Exception {
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), "UTF-8"))) {
+                new InputStreamReader(conn.getInputStream(), CHARSET))) {
             StringBuilder response = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -134,7 +126,7 @@ public class NetworkSender {
 
     private String readErrorResponse(HttpURLConnection conn) throws Exception {
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getErrorStream(), "UTF-8"))) {
+                new InputStreamReader(conn.getErrorStream(), CHARSET))) {
             StringBuilder response = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
