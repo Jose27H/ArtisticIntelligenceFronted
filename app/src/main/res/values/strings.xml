@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name" translatable="false">ArtisticIntelligence</string>
-    <string name="server_client_id" translatable="true">106905994125-blt7hpufeifo2lt46gafm8frf9fmaed5.apps.googleusercontent.com</string>
+    <string name="server_client_id" translatable="false">106905994125-blt7hpufeifo2lt46gafm8frf9fmaed5.apps.googleusercontent.com"</string>
 </resources>

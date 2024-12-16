@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <!-- Header Text -->
+    <TextView
+        android:id="@+id/header_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome:"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Generate Image Button -->
+    <Button
+        android:id="@+id/generate_image_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Image"
+        android:layout_marginTop="16dp" />
+
+    <!-- View Generated Images Button -->
+    <Button
+        android:id="@+id/view_generated_images_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Generated Images"
+        android:layout_marginTop="16dp" />
+
+    <!-- View Images from Community Button -->
+    <Button
+        android:id="@+id/view_community_images_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View Images from Community"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

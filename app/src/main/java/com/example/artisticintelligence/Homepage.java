@@ -18,6 +18,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Homepage extends AppCompatActivity {
     private static final String TAG = "Homepage";
 
@@ -26,6 +29,8 @@ public class Homepage extends AppCompatActivity {
     private Button sendButton;
     private NetworkSender networkSender;
     private AuthenticationManager authManager;
+
+    String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +92,7 @@ public class Homepage extends AppCompatActivity {
             authManager.handleSignInResult(task, new AuthenticationManager.SignInCallback() {
                 @Override
                 public void onSuccess(GoogleSignInAccount account) {
-                    Toast.makeText(Homepage.this, "Welcome, " + account.getId() , Toast.LENGTH_LONG).show();
+                    Toast.makeText(Homepage.this, "Welcome, " + account.getDisplayName() , Toast.LENGTH_LONG).show();
                     onLoginSuccess(account);
                 }
 
@@ -109,12 +114,13 @@ public class Homepage extends AppCompatActivity {
 
         if (idToken != null) {
             sendMessageWithToken(idToken);
+            navigateToWelcomeActivity(userId);
         }
     }
 
     public void onClick(View v) {
         sendButton.setEnabled(false);
-        sendMessage();
+
     }
 
     private void sendMessageWithToken(String token) {
@@ -127,8 +133,21 @@ public class Homepage extends AppCompatActivity {
         networkSender.sendHttpRequest("/login", jsonPayload, null, new NetworkSender.ResponseCallback() {
             @Override
             public void onSuccess(String response) {
-                showToast("Success: " + response);
-                runOnUiThread(() -> sendButton.setEnabled(true));
+                try {
+                    // Parse the response JSON
+                    JSONObject jsonResponse = new JSONObject(response);
+
+                    // Extract the user_id
+                 userId = jsonResponse.getString("user_id");
+
+
+
+
+                    runOnUiThread(() -> sendButton.setEnabled(true));
+
+                } catch (JSONException e) {
+                    showToast("Error parsing server response: " + e.getMessage());
+                }
             }
 
             @Override
@@ -139,28 +158,28 @@ public class Homepage extends AppCompatActivity {
         });
     }
 
-    private void sendMessage() {
-        String message = "u a bitch";
-        String token = "your-token-here"; // Replace with actual token if needed
-
-        // Create the JSON payload
-        String jsonPayload = String.format("{\"message\": \"%s\", \"token\": \"%s\"}", message, token);
-
-        // Use the updated sendHttpRequest method
-        networkSender.sendHttpRequest("/message", jsonPayload, null, new NetworkSender.ResponseCallback() {
-            @Override
-            public void onSuccess(String response) {
-                showToast("Success: " + response);
-                runOnUiThread(() -> sendButton.setEnabled(true));
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                showToast("Error: " + errorMessage);
-                runOnUiThread(() -> sendButton.setEnabled(true));
-            }
-        });
-    }
+//    private void sendMessage() {
+//        String message = "u a bitch";
+//        String token = "your-token-here"; // Replace with actual token if needed
+//
+//        // Create the JSON payload
+//        String jsonPayload = String.format("{\"message\": \"%s\", \"token\": \"%s\"}", message, token);
+//
+//        // Use the updated sendHttpRequest method
+//        networkSender.sendHttpRequest("/message", jsonPayload, null, new NetworkSender.ResponseCallback() {
+//            @Override
+//            public void onSuccess(String response) {
+//                showToast("Success: " + response);
+//                runOnUiThread(() -> sendButton.setEnabled(true));
+//            }
+//
+//            @Override
+//            public void onError(String errorMessage) {
+//                showToast("Error: " + errorMessage);
+//                runOnUiThread(() -> sendButton.setEnabled(true));
+//            }
+//        });
+//    }
 
 
     private void showToast(final String message) {
@@ -184,6 +203,13 @@ public class Homepage extends AppCompatActivity {
     private void resetUIAfterLogout() {
         googleSignInButton.setVisibility(View.VISIBLE);
         sendButton.setVisibility(View.GONE);
+
+    }
+
+    private void navigateToWelcomeActivity(String googleId) {
+        Intent intent = new Intent(this, Welcome.class);
+        intent.putExtra("GOOGLE_ID", googleId); // Pass the Google ID as an extra
+        startActivity(intent);
 
     }
 }
