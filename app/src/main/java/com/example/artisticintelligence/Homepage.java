@@ -178,10 +178,12 @@ public class Homepage extends AppCompatActivity {
 
     private void navigateToWelcomeActivity(String userid, String token) {
         Intent intent = new Intent(this, Welcome.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // added flags to the intent to clear the activity stack
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Flags to the intent to clear the activity stack
         intent.putExtra("USER_ID", userid);
-        intent.putExtra("GOOGLE_TOKEN", token);// Pass the Google ID as an extra
+        intent.putExtra("GOOGLE_TOKEN", token); // Pass the Google ID as an extra
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         startActivity(intent);
+
         finish();
 
     }
