@@ -35,9 +35,11 @@ public class Welcome extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_welcome);
+
         setListeners();
-       userId = getIntent().getStringExtra("USER_ID");
-       authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
+
+        userId = getIntent().getStringExtra("USER_ID");
+        authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
         networkSender = new NetworkSender();
       loadName();
 
