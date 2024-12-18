@@ -52,13 +52,23 @@ public class Welcome extends AppCompatActivity {
         viewImagesFromCommunityButton = findViewById(R.id.view_community_images_button);
 
         generateImageButton.setOnClickListener(this::clickGenerateImage);
+        viewGeneratedImageButton.setOnClickListener(this::clickViewGeneratedImages);
 
     }
 
     private void clickGenerateImage(View v){
         Intent intent = new Intent(this, PromptActivity.class);
         intent.putExtra("USER_ID", userId);
-        intent.putExtra("GOOGLE_TOKEN", authToken);// Pass the Google ID as an extra
+        intent.putExtra("GOOGLE_TOKEN", authToken); // Pass the Google ID as an extra
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        startActivity(intent);
+    }
+
+    private void clickViewGeneratedImages(View v) {
+        Intent intent = new Intent(this, ViewImagesActivity.class);
+        intent.putExtra("USER_ID", userId);
+        intent.putExtra("GOOGLE_TOKEN", authToken);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);;
         startActivity(intent);
     }
 
@@ -85,7 +95,7 @@ public class Welcome extends AppCompatActivity {
 
                         // If no error, get the name
                         String name = jsonResponse.getString("name");
-                        runOnUiThread(() ->nameView.setText("Welcome: " + name));
+                        runOnUiThread(() -> nameView.setText("Welcome: " + name));
 
 
 

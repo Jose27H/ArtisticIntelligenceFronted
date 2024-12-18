@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="generation_modes">
+        <item>Sketch</item>
+        <item>Style</item>
+        <item>Outpaint</item>
+        <item>Search &amp; Replace</item>
+        <item>Remove Background</item>
+        <item>Replace Background &amp; Relight</item>
+    </string-array>
+</resources>
