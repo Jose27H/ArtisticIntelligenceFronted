@@ -311,6 +311,22 @@ public class PromptActivity extends AppCompatActivity {
         });
     }
 
+    private void showGeneratedImage(String base64Image) {
+        try {
+            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Generated Image");
+            builder.setView(imageView);
+            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+            builder.show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Error displaying image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void sendGenerateRequest() {
         try {
             JSONObject requestBody = new JSONObject();
@@ -348,35 +364,19 @@ public class PromptActivity extends AppCompatActivity {
         }
     }
 
-    private void showGeneratedImage(String base64Image) {
-        try {
-            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-            ImageView imageView = new ImageView(this);
-            imageView.setImageBitmap(bitmap);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Generated Image");
-            builder.setView(imageView);
-            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
-            builder.show();
-        } catch (Exception e) {
-            Toast.makeText(this, "Error displaying image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void sendSketchRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "sketch");
             requestBody.put("prompt", getTextInputValue("sketch"));
 
             if (selectedImages.containsKey("sketch")) {
-                requestBody.put("reference_image", encodeImage(selectedImages.get("sketch")));
+                requestBody.put("b64String", encodeImage(selectedImages.get("sketch")));
             }
 
             requestBody.put("negative_prompt", getOptionalString("sketch_negative"));
             requestBody.put("control_strength", getOptionalSeekBarValue("control_strength"));
-            requestBody.put("output_format", spinners.get("output_format_sketch").getSelectedItem().toString());
+            requestBody.put("filetype", spinners.get("output_format_sketch").getSelectedItem().toString());
+            requestBody.put("user_id", userId);
 
             String seed = getOptionalSeedValue("sketch_seed");
             if (!seed.isEmpty()) {
@@ -386,7 +386,24 @@ public class PromptActivity extends AppCompatActivity {
                 requestBody.put("seed", "");
             }
 
-            sendHttpRequest(requestBody, "sketch");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/sketch", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+
+
+
         } catch (Exception e) {
             showError("Error preparing Sketch request: " + e.getMessage());
         }
@@ -395,15 +412,16 @@ public class PromptActivity extends AppCompatActivity {
     private void sendStyleRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "style");
             requestBody.put("prompt", getTextInputValue("style"));
-            requestBody.put("negative_prompt", getOptionalString("style_negative"));
-            requestBody.put("aspect_ratio", spinners.get("aspect_ratio").getSelectedItem().toString());
-            requestBody.put("fidelity", getOptionalSeekBarValue("fidelity"));
 
             if (selectedImages.containsKey("style")) {
-                requestBody.put("image", encodeImage(selectedImages.get("style")));
+                requestBody.put("b64String", encodeImage(selectedImages.get("style")));
             }
+
+            requestBody.put("negative_prompt", getOptionalString("style_negative"));
+            requestBody.put("fidelity", getOptionalSeekBarValue("fidelity"));
+            requestBody.put("filetype", spinners.get("output_format_style").getSelectedItem().toString());
+            requestBody.put("user_id", userId);
 
             String seed = getOptionalSeedValue("style_seed");
             if (!seed.isEmpty()) {
@@ -413,7 +431,21 @@ public class PromptActivity extends AppCompatActivity {
                 requestBody.put("seed", "");
             }
 
-            sendHttpRequest(requestBody, "style");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/style", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
         } catch (Exception e) {
             showError("Error preparing Style request: " + e.getMessage());
         }
@@ -422,11 +454,10 @@ public class PromptActivity extends AppCompatActivity {
     private void sendOutpaintRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "outpaint");
             requestBody.put("prompt", getTextInputValue("outpaint"));
 
             if (selectedImages.containsKey("outpaint")) {
-                requestBody.put("image", encodeImage(selectedImages.get("outpaint")));
+                requestBody.put("b64String", encodeImage(selectedImages.get("outpaint")));
             }
 
             requestBody.put("left", getTextInputValue("left_input"));
@@ -434,7 +465,8 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("up", getTextInputValue("up_input"));
             requestBody.put("down", getTextInputValue("down_input"));
             requestBody.put("creativity", getOptionalSeekBarValue("creativity"));
-            requestBody.put("output_format", spinners.get("output_format_outpaint").getSelectedItem().toString());
+            requestBody.put("filetype", spinners.get("output_format_outpaint").getSelectedItem().toString());
+            requestBody.put("user_id", userId);
 
             String seed = getOptionalSeedValue("outpaint_seed");
             if (!seed.isEmpty()) {
@@ -444,7 +476,21 @@ public class PromptActivity extends AppCompatActivity {
                 requestBody.put("seed", "");
             }
 
-            sendHttpRequest(requestBody, "outpaint");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/outpaint", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
         } catch (Exception e) {
             showError("Error preparing Outpaint request: " + e.getMessage());
         }
@@ -453,16 +499,16 @@ public class PromptActivity extends AppCompatActivity {
     private void sendSearchAndReplaceRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "searchAndReplace");
-            requestBody.put("search_prompt", getTextInputValue("search"));
-            requestBody.put("replace_prompt", getTextInputValue("replace"));
+            requestBody.put("searchPrompt", getTextInputValue("search"));
+            requestBody.put("replacementPrompt", getTextInputValue("replace"));
 
             if (selectedImages.containsKey("search_replace")) {
-                requestBody.put("image", encodeImage(selectedImages.get("search_replace")));
+                requestBody.put("b64String", encodeImage(selectedImages.get("search_replace")));
             }
 
             requestBody.put("negative_prompt", getOptionalString("search_negative"));
-            requestBody.put("output_format", spinners.get("output_format_search_replace").getSelectedItem().toString());
+            requestBody.put("filetype", spinners.get("output_format_search_replace").getSelectedItem().toString());
+            requestBody.put("user_id", userId);
 
             String seed = getOptionalSeedValue("search_replace_seed");
             if (!seed.isEmpty()) {
@@ -472,7 +518,21 @@ public class PromptActivity extends AppCompatActivity {
                 requestBody.put("seed", "");
             }
 
-            sendHttpRequest(requestBody, "searchAndReplace");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/searchAndReplace", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
         } catch (Exception e) {
             showError("Error preparing Search and Replace request: " + e.getMessage());
         }
@@ -481,23 +541,30 @@ public class PromptActivity extends AppCompatActivity {
     private void sendRemoveBackgroundRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "removeBackground");
 
             if (selectedImages.containsKey("remove_bg")) {
-                requestBody.put("image", encodeImage(selectedImages.get("remove_bg")));
+                requestBody.put("b64String", encodeImage(selectedImages.get("remove_bg")));
             }
 
-            requestBody.put("output_format", spinners.get("output_format_remove_bg").getSelectedItem().toString());
+            requestBody.put("filetype", spinners.get("output_format_remove_bg").getSelectedItem().toString());
+            requestBody.put("user_id", userId);
 
-            String seed = getOptionalSeedValue("remove_bg_seed");
-            if (!seed.isEmpty()) {
-                requestBody.put("seed", seed);
-            }
-            else {
-                requestBody.put("seed", "");
-            }
 
-            sendHttpRequest(requestBody, "removeBackground");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/removeBackground", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
         } catch (Exception e) {
             showError("Error preparing Remove Background request: " + e.getMessage());
         }
@@ -506,23 +573,21 @@ public class PromptActivity extends AppCompatActivity {
     private void sendRemoveBackgroundAndRelightRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "removeBackgroundAndRelight");
 
             if (selectedImages.containsKey("replace_bg")) {
-                requestBody.put("image", encodeImage(selectedImages.get("replace_bg")));
+                requestBody.put("b64String", encodeImage(selectedImages.get("replace_bg")));
             }
 
             requestBody.put("background_prompt", getTextInputValue("background_prompt"));
-
-            // Optional parameters
             requestBody.put("foreground_prompt", getOptionalString("foreground_prompt"));
             requestBody.put("negative_prompt", getOptionalString("replace_bg_negative"));
-            requestBody.put("preserve_original_subject", getOptionalSeekBarValue("preserve_subject"));
-            requestBody.put("original_background_depth", getOptionalSeekBarValue("background_depth"));
+            requestBody.put("preserve_subject", getOptionalSeekBarValue("preserve_subject"));
+            requestBody.put("background_depth", getOptionalSeekBarValue("background_depth"));
             requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
             requestBody.put("light_source_strength", getOptionalSeekBarValue("light_strength"));
             requestBody.put("light_source_direction", spinners.get("light_direction").getSelectedItem().toString());
-            requestBody.put("output_format", spinners.get("output_format").getSelectedItem().toString());
+            requestBody.put("filetype", spinners.get("output_format").getSelectedItem().toString());
+            requestBody.put("user_id", userId);
 
             String seed = getOptionalSeedValue("replace_bg_seed");
             if (!seed.isEmpty()) {
@@ -532,11 +597,201 @@ public class PromptActivity extends AppCompatActivity {
                 requestBody.put("seed", "");
             }
 
-            sendHttpRequest(requestBody, "removeBackgroundAndRelight");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/removeBackgroundAndRelight", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
         } catch (Exception e) {
             showError("Error preparing Remove Background and Relight request: " + e.getMessage());
         }
     }
+
+
+
+//    private void sendSketchRequest() {
+//        try {
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("mode", "sketch");
+//            requestBody.put("prompt", getTextInputValue("sketch"));
+//
+//            if (selectedImages.containsKey("sketch")) {
+//                requestBody.put("reference_image", encodeImage(selectedImages.get("sketch")));
+//            }
+//
+//            requestBody.put("negative_prompt", getOptionalString("sketch_negative"));
+//            requestBody.put("control_strength", getOptionalSeekBarValue("control_strength"));
+//            requestBody.put("output_format", spinners.get("output_format_sketch").getSelectedItem().toString());
+//
+//            String seed = getOptionalSeedValue("sketch_seed");
+//            if (!seed.isEmpty()) {
+//                requestBody.put("seed", seed);
+//            }
+//            else {
+//                requestBody.put("seed", "");
+//            }
+//
+//            sendHttpRequest(requestBody, "sketch");
+//        } catch (Exception e) {
+//            showError("Error preparing Sketch request: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendStyleRequest() {
+//        try {
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("mode", "style");
+//            requestBody.put("prompt", getTextInputValue("style"));
+//            requestBody.put("negative_prompt", getOptionalString("style_negative"));
+//            requestBody.put("aspect_ratio", spinners.get("aspect_ratio").getSelectedItem().toString());
+//            requestBody.put("fidelity", getOptionalSeekBarValue("fidelity"));
+//
+//            if (selectedImages.containsKey("style")) {
+//                requestBody.put("image", encodeImage(selectedImages.get("style")));
+//            }
+//
+//            String seed = getOptionalSeedValue("style_seed");
+//            if (!seed.isEmpty()) {
+//                requestBody.put("seed", seed);
+//            }
+//            else {
+//                requestBody.put("seed", "");
+//            }
+//
+//            sendHttpRequest(requestBody, "style");
+//        } catch (Exception e) {
+//            showError("Error preparing Style request: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendOutpaintRequest() {
+//        try {
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("mode", "outpaint");
+//            requestBody.put("prompt", getTextInputValue("outpaint"));
+//
+//            if (selectedImages.containsKey("outpaint")) {
+//                requestBody.put("image", encodeImage(selectedImages.get("outpaint")));
+//            }
+//
+//            requestBody.put("left", getTextInputValue("left_input"));
+//            requestBody.put("right", getTextInputValue("right_input"));
+//            requestBody.put("up", getTextInputValue("up_input"));
+//            requestBody.put("down", getTextInputValue("down_input"));
+//            requestBody.put("creativity", getOptionalSeekBarValue("creativity"));
+//            requestBody.put("output_format", spinners.get("output_format_outpaint").getSelectedItem().toString());
+//
+//            String seed = getOptionalSeedValue("outpaint_seed");
+//            if (!seed.isEmpty()) {
+//                requestBody.put("seed", seed);
+//            }
+//            else {
+//                requestBody.put("seed", "");
+//            }
+//
+//            sendHttpRequest(requestBody, "outpaint");
+//        } catch (Exception e) {
+//            showError("Error preparing Outpaint request: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendSearchAndReplaceRequest() {
+//        try {
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("mode", "searchAndReplace");
+//            requestBody.put("search_prompt", getTextInputValue("search"));
+//            requestBody.put("replace_prompt", getTextInputValue("replace"));
+//
+//            if (selectedImages.containsKey("search_replace")) {
+//                requestBody.put("image", encodeImage(selectedImages.get("search_replace")));
+//            }
+//
+//            requestBody.put("negative_prompt", getOptionalString("search_negative"));
+//            requestBody.put("output_format", spinners.get("output_format_search_replace").getSelectedItem().toString());
+//
+//            String seed = getOptionalSeedValue("search_replace_seed");
+//            if (!seed.isEmpty()) {
+//                requestBody.put("seed", seed);
+//            }
+//            else {
+//                requestBody.put("seed", "");
+//            }
+//
+//            sendHttpRequest(requestBody, "searchAndReplace");
+//        } catch (Exception e) {
+//            showError("Error preparing Search and Replace request: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendRemoveBackgroundRequest() {
+//        try {
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("mode", "removeBackground");
+//
+//            if (selectedImages.containsKey("remove_bg")) {
+//                requestBody.put("image", encodeImage(selectedImages.get("remove_bg")));
+//            }
+//
+//            requestBody.put("output_format", spinners.get("output_format_remove_bg").getSelectedItem().toString());
+//
+//            String seed = getOptionalSeedValue("remove_bg_seed");
+//            if (!seed.isEmpty()) {
+//                requestBody.put("seed", seed);
+//            }
+//            else {
+//                requestBody.put("seed", "");
+//            }
+//
+//            sendHttpRequest(requestBody, "removeBackground");
+//        } catch (Exception e) {
+//            showError("Error preparing Remove Background request: " + e.getMessage());
+//        }
+//    }
+//
+//    private void sendRemoveBackgroundAndRelightRequest() {
+//        try {
+//            JSONObject requestBody = new JSONObject();
+//            requestBody.put("mode", "removeBackgroundAndRelight");
+//
+//            if (selectedImages.containsKey("replace_bg")) {
+//                requestBody.put("image", encodeImage(selectedImages.get("replace_bg")));
+//            }
+//
+//            requestBody.put("background_prompt", getTextInputValue("background_prompt"));
+//
+//            // Optional parameters
+//            requestBody.put("foreground_prompt", getOptionalString("foreground_prompt"));
+//            requestBody.put("negative_prompt", getOptionalString("replace_bg_negative"));
+//            requestBody.put("preserve_original_subject", getOptionalSeekBarValue("preserve_subject"));
+//            requestBody.put("original_background_depth", getOptionalSeekBarValue("background_depth"));
+//            requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
+//            requestBody.put("light_source_strength", getOptionalSeekBarValue("light_strength"));
+//            requestBody.put("light_source_direction", spinners.get("light_direction").getSelectedItem().toString());
+//            requestBody.put("output_format", spinners.get("output_format").getSelectedItem().toString());
+//
+//            String seed = getOptionalSeedValue("replace_bg_seed");
+//            if (!seed.isEmpty()) {
+//                requestBody.put("seed", seed);
+//            }
+//            else {
+//                requestBody.put("seed", "");
+//            }
+//
+//            sendHttpRequest(requestBody, "removeBackgroundAndRelight");
+//        } catch (Exception e) {
+//            showError("Error preparing Remove Background and Relight request: " + e.getMessage());
+//        }
+//    }
 
 
 //    private void sendHttpRequest(JSONObject requestBody, String mode) {
