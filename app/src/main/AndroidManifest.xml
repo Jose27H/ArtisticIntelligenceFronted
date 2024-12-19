@@ -16,15 +16,6 @@
         android:theme="@style/Theme.ArtisticIntelligence"
         android:usesCleartextTraffic="true">
         <activity
-            android:name=".ViewImagesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".PromptActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Welcome"
-            android:exported="false" />
-        <activity
             android:name=".Homepage"
             android:exported="true">
             <intent-filter>
@@ -33,6 +24,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ViewImagesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PromptActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Welcome"
+            android:exported="false" />
     </application>
 
 </manifest>
