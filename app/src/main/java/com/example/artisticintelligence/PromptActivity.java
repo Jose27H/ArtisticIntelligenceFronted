@@ -2,6 +2,7 @@ package com.example.artisticintelligence;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -180,6 +182,25 @@ public class PromptActivity extends AppCompatActivity {
         setupUploadButton("replace_bg", R.id.replace_bg_upload_button);
     }
 
+//    private void setupImagePicker() {
+//        imagePickerLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+//                        Uri selectedImageUri = result.getData().getData();
+//                        if (selectedImageUri != null && currentUploadMode != null) {
+//                            selectedImages.put(currentUploadMode, selectedImageUri);
+//                            ImageView preview = imagePreviews.get(currentUploadMode);
+//                            if (preview != null) {
+//                                preview.setImageURI(selectedImageUri);
+//                                preview.setVisibility(View.VISIBLE);
+//                            }
+//                        }
+//                    }
+//                }
+//        );
+//    }
+
     private void setupImagePicker() {
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -187,16 +208,66 @@ public class PromptActivity extends AppCompatActivity {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Uri selectedImageUri = result.getData().getData();
                         if (selectedImageUri != null && currentUploadMode != null) {
-                            selectedImages.put(currentUploadMode, selectedImageUri);
-                            ImageView preview = imagePreviews.get(currentUploadMode);
-                            if (preview != null) {
-                                preview.setImageURI(selectedImageUri);
-                                preview.setVisibility(View.VISIBLE);
+                            // Get the file extension
+                            String fileExtension = getFileExtension(selectedImageUri);
+
+                            // Check if the file extension is supported
+                            if (isValidImageFormat(fileExtension)) {
+                                selectedImages.put(currentUploadMode, selectedImageUri);
+                                ImageView preview = imagePreviews.get(currentUploadMode);
+                                if (preview != null) {
+                                    preview.setImageURI(selectedImageUri);
+                                    preview.setVisibility(View.VISIBLE);
+                                }
+                            } else {
+                                showError("Unsupported file format. Please use JPEG, PNG, or WEBP images.");
                             }
                         }
                     }
                 }
         );
+    }
+
+    private String getFileExtension(Uri uri) {
+        String extension = "";
+        try {
+            ContentResolver contentResolver = getContentResolver();
+            MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+
+            // Get the file's MIME type
+            String mimeType = contentResolver.getType(uri);
+            if (mimeType != null) {
+                // Convert MIME type to file extension
+                extension = mimeTypeMap.getExtensionFromMimeType(mimeType);
+            } else {
+                // Fallback: try to get extension from URI path
+                String path = uri.getPath();
+                if (path != null) {
+                    int lastDot = path.lastIndexOf('.');
+                    if (lastDot != -1) {
+                        extension = path.substring(lastDot + 1).toLowerCase();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return extension;
+    }
+
+    private boolean isValidImageFormat(String extension) {
+        if (extension == null || extension.isEmpty()) {
+            return false;
+        }
+
+        // Convert to lowercase for case-insensitive comparison
+        extension = extension.toLowerCase();
+
+        // Check against supported formats
+        return extension.equals("jpg") ||
+                extension.equals("jpeg") ||
+                extension.equals("png") ||
+                extension.equals("webp");
     }
 
     private void setupUploadButton(String mode, int buttonId) {
