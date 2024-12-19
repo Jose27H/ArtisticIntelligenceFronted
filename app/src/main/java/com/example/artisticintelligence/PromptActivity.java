@@ -292,6 +292,39 @@ public class PromptActivity extends AppCompatActivity {
         }
     }
 
+    private void setLoadingState(boolean loading) {
+        isProcessing = loading;
+        loadingOverlay.setVisibility(loading ? View.VISIBLE : View.GONE);
+//        submitButton.setEnabled(!loading); // Disable/enable submit button
+
+        // Disable all text inputs
+        for (EditText input : textInputs.values()) {
+            if (input != null) {
+                input.setEnabled(!loading);
+            }
+        }
+
+        // Disable all seekbars
+        for (SeekBar seekBar : seekBars.values()) {
+            if (seekBar != null) {
+                seekBar.setEnabled(!loading);
+            }
+        }
+
+        // Disable all spinners
+        for (Spinner spinner : spinners.values()) {
+            if (spinner != null) {
+                spinner.setEnabled(!loading);
+            }
+        }
+
+        // Disable mode spinner
+        modeSpinner.setEnabled(!loading);
+
+        // Optionally change button appearance to show disabled state
+        submitButton.setAlpha(loading ? 0.5f : 1.0f);
+    }
+
     private void updateVisibleLayout(int position) {
         String selectedMode = getSelectedMode(position);
         for (Map.Entry<String, View> entry : modeLayouts.entrySet()) {
