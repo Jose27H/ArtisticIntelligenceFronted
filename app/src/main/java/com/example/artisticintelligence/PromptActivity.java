@@ -371,24 +371,89 @@ public class PromptActivity extends AppCompatActivity {
         });
     }
 
+//    private void showGeneratedImage(String base64Image) {
+//        try {
+//            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+//            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+//            ImageView imageView = new ImageView(this);
+//            imageView.setImageBitmap(bitmap);
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setTitle("Generated Image");
+//            builder.setView(imageView);
+//            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+//            builder.show();
+//        } catch (Exception e) {
+//            Toast.makeText(this, "Error displaying image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
     private void showGeneratedImage(String base64Image) {
         try {
             byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
             Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
             ImageView imageView = new ImageView(this);
             imageView.setImageBitmap(bitmap);
+
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Generated Image");
             builder.setView(imageView);
-            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+            builder.setPositiveButton("Save", (dialog, which) -> saveImage(base64Image));
+            builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss());
             builder.show();
         } catch (Exception e) {
             Toast.makeText(this, "Error displaying image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void saveImage(String base64Image) {
+        try {
+            JSONObject requestBody = new JSONObject();
+            requestBody.put("user_id", userId);
+            requestBody.put("image", base64Image);
+
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/saveImage", requestBody.toString(), authToken, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            if (jsonResponse.has("error")) {
+                                Toast.makeText(PromptActivity.this,
+                                        "Error saving image: " + jsonResponse.getString("error"),
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(PromptActivity.this,
+                                        "Image saved successfully!",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(PromptActivity.this,
+                                    "Error processing save response: " + e.getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this,
+                                "Error saving image: " + errorMessage,
+                                Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this,
+                    "Error preparing save request: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void sendGenerateRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
             requestBody.put("prompt", getTextInputValue("generate"));
             requestBody.put("negative_prompt", getOptionalString("generate_negative"));
@@ -410,22 +475,26 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
         } catch (Exception e) {
             Toast.makeText(this, "Error creating request payload: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            setLoadingState(false);
         }
     }
 
     private void sendSketchRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
             requestBody.put("prompt", getTextInputValue("sketch"));
 
@@ -452,25 +521,27 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
 
-
-
         } catch (Exception e) {
             showError("Error preparing Sketch request: " + e.getMessage());
+            setLoadingState(false);
         }
     }
 
     private void sendStyleRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
             requestBody.put("prompt", getTextInputValue("style"));
 
@@ -497,22 +568,26 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
         } catch (Exception e) {
             showError("Error preparing Style request: " + e.getMessage());
+            setLoadingState(false);
         }
     }
 
     private void sendOutpaintRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
             requestBody.put("prompt", getTextInputValue("outpaint"));
 
@@ -542,22 +617,26 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
         } catch (Exception e) {
             showError("Error preparing Outpaint request: " + e.getMessage());
+            setLoadingState(false);
         }
     }
 
     private void sendSearchAndReplaceRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
             requestBody.put("search_prompt", getTextInputValue("search"));
             requestBody.put("replacement_prompt", getTextInputValue("replace"));
@@ -584,22 +663,26 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
         } catch (Exception e) {
             showError("Error preparing Search and Replace request: " + e.getMessage());
+            setLoadingState(false);
         }
     }
 
     private void sendRemoveBackgroundRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
 
             if (selectedImages.containsKey("remove_bg")) {
@@ -616,22 +699,26 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
         } catch (Exception e) {
             showError("Error preparing Remove Background request: " + e.getMessage());
+            setLoadingState(false);
         }
     }
 
     private void sendRemoveBackgroundAndRelightRequest() {
         try {
+            setLoadingState(true);
             JSONObject requestBody = new JSONObject();
 
             if (selectedImages.containsKey("replace_bg")) {
@@ -668,17 +755,20 @@ public class PromptActivity extends AppCompatActivity {
                 public void onSuccess(String response) {
                     runOnUiThread(() -> {
                         showGeneratedImage(response);
+                        setLoadingState(false);
                     });
                 }
                 @Override
                 public void onError(String errorMessage) {
                     runOnUiThread(() -> {
                         Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        setLoadingState(false);
                     });
                 }
             });
         } catch (Exception e) {
             showError("Error preparing Remove Background and Relight request: " + e.getMessage());
+            setLoadingState(false);
         }
     }
 

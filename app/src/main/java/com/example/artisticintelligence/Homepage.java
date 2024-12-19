@@ -147,7 +147,6 @@ public class Homepage extends AppCompatActivity {
     private void logout() {
         authManager.signOut(task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show();
                 resetUIAfterLogout();
             } else {
                 Toast.makeText(this, "Logout failed", Toast.LENGTH_SHORT).show();
