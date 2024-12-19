@@ -27,9 +27,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import android.Manifest;
-
-
 public class PromptActivity extends AppCompatActivity {
     private static final long MAX_SEED_VALUE = 4294967294L;
     private static final int MAX_OUTPAINT_VALUE = 2000;
