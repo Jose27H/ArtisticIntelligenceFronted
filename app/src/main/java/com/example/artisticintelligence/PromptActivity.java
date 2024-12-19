@@ -1,6 +1,7 @@
 package com.example.artisticintelligence;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -313,14 +314,11 @@ public class PromptActivity extends AppCompatActivity {
     private void sendGenerateRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("mode", "generate");
             requestBody.put("prompt", getTextInputValue("generate"));
-
             requestBody.put("negative_prompt", getOptionalString("generate_negative"));
             requestBody.put("aspect_ratio", spinners.get("aspect_ratio_gen").getSelectedItem().toString());
-            requestBody.put("output_format", spinners.get("output_format_gen").getSelectedItem().toString());
-
-            requestBody.put("user_id", Integer.parseInt(userId));
+            requestBody.put("filetype", spinners.get("output_format_gen").getSelectedItem().toString());
+            requestBody.put("user_id", 2);
 
             String seed = getOptionalSeedValue("generate_seed");
             if (!seed.isEmpty()) {
@@ -330,12 +328,41 @@ public class PromptActivity extends AppCompatActivity {
                 requestBody.put("seed", "");
             }
 
-            sendHttpRequest(requestBody, "generate");
+            NetworkSender networkSender = new NetworkSender();
+            networkSender.sendHttpRequest("/generate", requestBody.toString(), null, new NetworkSender.ResponseCallback() {
+                @Override
+                public void onSuccess(String response) {
+                    runOnUiThread(() -> {
+                        showGeneratedImage(response);
+                    });
+                }
+                @Override
+                public void onError(String errorMessage) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(PromptActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
         } catch (Exception e) {
-            showError("Error preparing Generate request: " + e.getMessage());
+            Toast.makeText(this, "Error creating request payload: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void showGeneratedImage(String base64Image) {
+        try {
+            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            ImageView imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Generated Image");
+            builder.setView(imageView);
+            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
+            builder.show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Error displaying image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void sendSketchRequest() {
         try {
