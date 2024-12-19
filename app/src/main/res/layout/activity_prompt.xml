@@ -41,23 +41,29 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-          <EditText
-              android:id="@+id/generate_prompt_input"
+          <!-- Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter description"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Prompt:">
 
-          <EditText
-              android:id="@+id/generate_negative_prompt"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/generate_prompt_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Negative Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter negative prompt (optional)"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Negative Prompt:">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/generate_negative_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
           <TextView
               android:layout_width="wrap_content"
@@ -85,18 +91,19 @@
               android:layout_marginTop="16dp"
               tools:ignore="DuplicateIds"/>
 
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="Seed (optional)"
-              android:layout_marginTop="16dp"/>
-
-          <EditText
-              android:id="@+id/generate_seed"
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:inputType="number"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/generate_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
@@ -108,29 +115,35 @@
             android:orientation="vertical"
             android:visibility="visible">
 
-          <EditText
-              android:id="@+id/sketch_prompt_input"
+          <!-- Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter description"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Prompt:">
 
-          <EditText
-              android:id="@+id/sketch_negative_prompt"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/sketch_prompt_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Negative Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter negative prompt (optional)"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Negative Prompt:">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/sketch_negative_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="Control Strength (0-1)"
-              android:layout_marginBottom="8dp"/>
+              android:layout_marginTop="16dp"/>
 
           <SeekBar
               android:id="@+id/control_strength_seekbar"
@@ -154,6 +167,20 @@
               android:layout_marginTop="16dp"
               tools:ignore="DuplicateIds" />
 
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/sketch_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
 
           <ImageView
               android:id="@+id/sketch_image_preview"
@@ -163,11 +190,13 @@
               android:visibility="gone"
               android:layout_marginBottom="16dp"/>
 
+
           <Button
               android:id="@+id/sketch_upload_button"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="Upload Reference Image"/>
+              android:text="Upload Reference Image"
+              android:layout_marginTop="16dp"/>
         </LinearLayout>
 
         <!-- Style Mode -->
@@ -178,29 +207,35 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-          <EditText
-              android:id="@+id/style_prompt_input"
+          <!-- Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter style description"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Prompt:">
 
-          <EditText
-              android:id="@+id/style_negative_prompt"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/style_prompt_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Negative Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter negative prompt (optional)"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Negative Prompt:">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/style_negative_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
           <TextView
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="Fidelity (0-1)"
-              android:layout_marginBottom="8dp"/>
+              android:layout_marginTop="16dp"/>
 
           <SeekBar
               android:id="@+id/fidelity_seekbar"
@@ -236,6 +271,20 @@
               android:layout_marginTop="16dp"
               tools:ignore="DuplicateIds"/>
 
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/style_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
           <ImageView
               android:id="@+id/style_image_preview"
               android:layout_width="match_parent"
@@ -248,7 +297,8 @@
               android:id="@+id/style_upload_button"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="Upload Image to Style"/>
+              android:text="Upload Image"
+              android:layout_marginTop="16dp"/>
 
         </LinearLayout>
 
@@ -260,14 +310,18 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-          <EditText
-              android:id="@+id/outpaint_prompt_input"
+          <!-- Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter outpainting description"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="Prompt:">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/outpaint_prompt_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
 
           <LinearLayout
               android:layout_width="match_parent"
@@ -348,6 +402,20 @@
               android:layout_marginTop="16dp"
               tools:ignore="DuplicateIds"/>
 
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/outpaint_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
           <ImageView
               android:id="@+id/outpaint_image_preview"
               android:layout_width="match_parent"
@@ -360,7 +428,8 @@
               android:id="@+id/outpaint_upload_button"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="Upload Image to Outpaint"/>
+              android:text="Upload Image"
+              android:layout_marginTop="16dp"/>
 
         </LinearLayout>
 
@@ -372,32 +441,41 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-          <EditText
-              android:id="@+id/search_text_input"
+          <!-- Search for Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter what to search for"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="What to search for:">
 
-          <EditText
-              android:id="@+id/replace_text_input"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:hint="Enter what to replace with"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search_text_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
-          <EditText
-              android:id="@+id/search_negative_prompt"
+          <!-- Replace with Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter negative prompt (optional)"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
-              android:layout_marginBottom="16dp"/>
+              android:hint="What to replace with:">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/replace_text_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Negative Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Negative Prompt:">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search_negative_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
           <TextView
               android:layout_width="wrap_content"
@@ -409,8 +487,21 @@
               android:id="@+id/output_format_search_replace"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:layout_marginTop="16dp"
-              tools:ignore="DuplicateIds"/>
+              android:layout_marginTop="16dp"/>
+
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/search_replace_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
+          </com.google.android.material.textfield.TextInputLayout>
 
           <ImageView
               android:id="@+id/search_replace_image_preview"
@@ -424,7 +515,8 @@
               android:id="@+id/search_replace_upload_button"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="Upload Image"/>
+              android:text="Upload Image"
+              android:layout_marginTop="16dp"/>
 
 
         </LinearLayout>
@@ -444,6 +536,32 @@
               android:textStyle="italic"
               android:layout_marginBottom="8dp"/>
 
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_remove_bg"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"/>
+
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/remove_bg_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
           <ImageView
               android:id="@+id/remove_bg_image_preview"
               android:layout_width="match_parent"
@@ -458,18 +576,7 @@
               android:layout_height="wrap_content"
               android:text="Upload Image"/>
 
-          <TextView
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="Output Format"
-              android:layout_marginTop="16dp"/>
 
-          <Spinner
-              android:id="@+id/output_format_remove_bg"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_marginTop="16dp"
-              tools:ignore="DuplicateIds"/>
         </LinearLayout>
 
         <!-- Replace Background & Relight Mode -->
@@ -622,7 +729,8 @@
                 android:id="@+id/replace_bg_seed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number"/>
+                android:inputType="number"
+                android:layout_marginTop="16dp"/>
           </com.google.android.material.textfield.TextInputLayout>
 
           <TextView

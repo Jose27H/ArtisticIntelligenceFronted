@@ -2,6 +2,8 @@ package com.example.artisticintelligence;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -11,6 +13,9 @@ import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.squareup.picasso.Picasso;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -18,8 +23,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class PromptActivity extends AppCompatActivity {
     private static final String TAG = "PromptActivity";
+
+    private static final long MAX_SEED_VALUE = 4294967294L;
+    private static final int MAX_OUTPAINT_VALUE = 2000;
 
     // UI Components
     private Spinner modeSpinner;
@@ -38,7 +47,7 @@ public class PromptActivity extends AppCompatActivity {
     // Activity Result Launcher for image selection
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
-    // Add new UI component references
+    // New UI component references
     private Map<String, SeekBar> seekBars;
     private Map<String, Spinner> spinners;
     private CheckBox keepOriginalBackgroundCheckbox;
@@ -274,10 +283,81 @@ public class PromptActivity extends AppCompatActivity {
     private boolean validateInputs() {
         String currentMode = getSelectedMode(modeSpinner.getSelectedItemPosition());
 
+        // Common validation for all modes - validate seed if provided
+        String seedKey = currentMode + "_seed";
+        String seedValue = getTextInputValue(seedKey);
+        if (!seedValue.isEmpty()) {
+            try {
+                long seed = Long.parseLong(seedValue);
+                if (seed < 0 || seed > MAX_SEED_VALUE) {
+                    showError("Seed must be between 0 and " + MAX_SEED_VALUE);
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                showError("Invalid seed value");
+                return false;
+            }
+        }
+
+
+        // Seed validation for all modes
+//        String seedValue = "";
         switch (currentMode) {
+            case "generate":
+                seedValue = getTextInputValue("generate_seed");
+                break;
+            case "sketch":
+                seedValue = getTextInputValue("sketch_seed");
+                break;
+            case "style":
+                seedValue = getTextInputValue("style_seed");
+                break;
+            case "outpaint":
+                seedValue = getTextInputValue("outpaint_seed");
+                break;
+            case "search_replace":
+                seedValue = getTextInputValue("search_replace_seed");
+                break;
+            case "remove_bg":
+                seedValue = getTextInputValue("remove_bg_seed");
+                break;
+            case "replace_bg":
+                seedValue = getTextInputValue("replace_bg_seed");
+                break;
+        }
+
+        if (!seedValue.isEmpty()) {
+            try {
+                long seed = Long.parseLong(seedValue);
+                if (seed < 0 || seed > MAX_SEED_VALUE) {
+                    showError("Seed must be between 0 and " + MAX_SEED_VALUE);
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                showError("Invalid seed value");
+                return false;
+            }
+        }
+
+
+
+        // Mode specific validation
+        switch (currentMode) {
+
+            case "generate":
+                if (getTextInputValue("generate").isEmpty()) {
+                    showError("Please enter a prompt");
+                    return false;
+                }
+                break;
+
             case "sketch":
                 if (getTextInputValue("sketch").isEmpty()) {
                     showError("Please enter a prompt");
+                    return false;
+                }
+                if (!selectedImages.containsKey("sketch")) {
+                    showError("Please upload a reference image");
                     return false;
                 }
                 break;
@@ -298,12 +378,40 @@ public class PromptActivity extends AppCompatActivity {
                     showError("Please upload an image to outpaint");
                     return false;
                 }
+
+                // Validate outpaint dimensions
+                try {
+                    int left = Integer.parseInt(getTextInputValue("left_input"));
+                    int right = Integer.parseInt(getTextInputValue("right_input"));
+                    int up = Integer.parseInt(getTextInputValue("up_input"));
+                    int down = Integer.parseInt(getTextInputValue("down_input"));
+
+                    // Enforce that all values cannot be 0
+                    if (left == 0 && right == 0 && up == 0 && down == 0) {
+                        showError("At least one outpaint direction must be non-zero");
+                        return false;
+                    }
+
+                    // Validate individual values
+                    if (left < 0 || right < 0 || up < 0 || down < 0 ||
+                            left > MAX_OUTPAINT_VALUE || right > MAX_OUTPAINT_VALUE ||
+                            up > MAX_OUTPAINT_VALUE || down > MAX_OUTPAINT_VALUE) {
+                        showError("Outpaint values must be between 0 and " + MAX_OUTPAINT_VALUE);
+                        return false;
+                    }
+                } catch (NumberFormatException e) {
+                    showError("Please enter valid numbers for outpaint dimensions");
+                    return false;
+                }
                 break;
 
             case "search_replace":
-                if (getTextInputValue("search").isEmpty() ||
-                        getTextInputValue("replace").isEmpty()) {
-                    showError("Please fill in both search and replace fields");
+                if (getTextInputValue("search").isEmpty()) {
+                    showError("Please enter what to search for");
+                    return false;
+                }
+                if (getTextInputValue("replace").isEmpty()) {
+                    showError("Please enter what to replace with");
                     return false;
                 }
                 if (!selectedImages.containsKey("search_replace")) {
@@ -345,33 +453,51 @@ public class PromptActivity extends AppCompatActivity {
             JSONObject requestBody = new JSONObject();
             requestBody.put("mode", currentMode);
 
-            // Add common parameters
+            // Common parameters
             if (spinners.get("output_format") != null) {
                 requestBody.put("output_format", spinners.get("output_format").getSelectedItem().toString());
             }
 
+
             // Mode-specific parameters
             switch (currentMode) {
                 case "generate":
+                    // Required inputs
                     requestBody.put("prompt", textInputs.get("generate").getText().toString());
-                    requestBody.put("negative_prompt", textInputs.get("generate_negative").getText().toString());
-                    requestBody.put("aspect_ratio", spinners.get("generate_aspect_ratio").getSelectedItem().toString());
-                    requestBody.put("output_format", spinners.get("generate_output_format").getSelectedItem().toString());
-                    String seed = textInputs.get("generate_seed").getText().toString();
 
+                    // Optional inputs
+                    String negPrompt = getTextInputValue("generate_negative");
+                    String seed = getTextInputValue("generate_seed");
+                    String aspectRatio = spinners.get("aspect_ratio_gen").getSelectedItem().toString();
+                    String outputFormat = spinners.get("output_format_gen").getSelectedItem().toString();
+
+                    // Add optional fields (empty string if not provided)
+                    requestBody.put("negative_prompt", negPrompt);
+                    requestBody.put("aspect_ratio", aspectRatio);
+                    requestBody.put("output_format", outputFormat);
                     if (!seed.isEmpty()) {
-                        requestBody.put("seed", Integer.parseInt(seed));
+                        requestBody.put("seed", Long.parseLong(seed));
                     }
                     break;
 
                 case "sketch":
+                    // Required
                     requestBody.put("prompt", textInputs.get("sketch").getText().toString());
-                    requestBody.put("negative_prompt", textInputs.get("sketch_negative").getText().toString());
-                    requestBody.put("control_strength", getSeekBarValue("control_strength"));
-                    requestBody.put("output_format", spinners.get("generate_output_format").getSelectedItem().toString());
-
                     if (selectedImages.containsKey("sketch")) {
                         requestBody.put("reference_image", encodeImage(selectedImages.get("sketch")));
+                    }
+
+                    // Optional
+                    String sketchNegPrompt = getTextInputValue("sketch_negative");
+                    String controlStrength = String.valueOf(getSeekBarValue("control_strength"));
+                    String sketchOutputFormat = spinners.get("output_format_sketch").getSelectedItem().toString();
+                    String sketchSeed = getTextInputValue("sketch_seed");
+
+                    requestBody.put("negative_prompt", sketchNegPrompt);
+                    requestBody.put("control_strength", controlStrength);
+                    requestBody.put("output_format", sketchOutputFormat);
+                    if (!sketchSeed.isEmpty()) {
+                        requestBody.put("seed", Long.parseLong(sketchSeed));
                     }
                     break;
 
@@ -386,54 +512,92 @@ public class PromptActivity extends AppCompatActivity {
                     break;
 
                 case "outpaint":
+                    // Required
                     requestBody.put("prompt", textInputs.get("outpaint").getText().toString());
+                    if (selectedImages.containsKey("outpaint")) {
+                        requestBody.put("image", encodeImage(selectedImages.get("outpaint")));
+                    }
                     requestBody.put("left", getTextInputValue("left_input"));
                     requestBody.put("right", getTextInputValue("right_input"));
                     requestBody.put("up", getTextInputValue("up_input"));
                     requestBody.put("down", getTextInputValue("down_input"));
-                    requestBody.put("creativity", getSeekBarValue("creativity"));
-                    if (selectedImages.containsKey("outpaint")) {
-                        requestBody.put("image", encodeImage(selectedImages.get("outpaint")));
+
+                    // Optional
+                    String creativity = String.valueOf(getSeekBarValue("creativity"));
+                    String outpaintOutputFormat = spinners.get("output_format_outpaint").getSelectedItem().toString();
+                    String outpaintSeed = getTextInputValue("outpaint_seed");
+
+                    requestBody.put("creativity", creativity);
+                    requestBody.put("output_format", outpaintOutputFormat);
+                    if (!outpaintSeed.isEmpty()) {
+                        requestBody.put("seed", Long.parseLong(outpaintSeed));
                     }
                     break;
 
                 case "search_replace":
-                    requestBody.put("prompt", textInputs.get("search").getText().toString());
+                    // Required
                     requestBody.put("search_prompt", textInputs.get("search").getText().toString());
-                    requestBody.put("negative_prompt", textInputs.get("search_negative").getText().toString());
+                    requestBody.put("replace_prompt", textInputs.get("replace").getText().toString());
                     if (selectedImages.containsKey("search_replace")) {
                         requestBody.put("image", encodeImage(selectedImages.get("search_replace")));
                     }
+
+                    // Optional
+                    String searchNegPrompt = getTextInputValue("search_negative");
+                    String searchOutputFormat = spinners.get("output_format_search_replace").getSelectedItem().toString();
+                    String searchSeed = getTextInputValue("search_replace_seed");
+
+                    requestBody.put("negative_prompt", searchNegPrompt);
+                    requestBody.put("output_format", searchOutputFormat);
+                    if (!searchSeed.isEmpty()) {
+                        requestBody.put("seed", Long.parseLong(searchSeed));
+                    }
                     break;
 
+
                 case "remove_bg":
+                    // Required
                     if (selectedImages.containsKey("remove_bg")) {
                         requestBody.put("image", encodeImage(selectedImages.get("remove_bg")));
+                    }
+
+                    // Optional
+                    String removeBgOutputFormat = spinners.get("output_format_remove_bg").getSelectedItem().toString();
+                    String removeBgSeed = getTextInputValue("remove_bg_seed");
+
+                    requestBody.put("output_format", removeBgOutputFormat);
+                    if (!removeBgSeed.isEmpty()) {
+                        requestBody.put("seed", Long.parseLong(removeBgSeed));
                     }
                     break;
 
                 case "replace_bg":
+                    // Required
+                    requestBody.put("background_prompt", textInputs.get("background_prompt").getText().toString());
                     if (selectedImages.containsKey("replace_bg")) {
                         requestBody.put("image", encodeImage(selectedImages.get("replace_bg")));
                     }
-                    // Required inputs
-                    requestBody.put("background_prompt", textInputs.get("background_prompt").getText().toString());
 
-                    // Optional inputs
-                    String foregroundPrompt = textInputs.get("foreground_prompt").getText().toString();
-                    if (!foregroundPrompt.isEmpty()) {
-                        requestBody.put("foreground_prompt", foregroundPrompt);
-                    }
-
-                    requestBody.put("negative_prompt", textInputs.get("replace_bg_negative").getText().toString());
-                    requestBody.put("preserve_original_subject", getSeekBarValue("preserve_subject"));
-                    requestBody.put("original_background_depth", getSeekBarValue("background_depth"));
-                    requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
-                    requestBody.put("light_source_strength", getSeekBarValue("light_strength"));
-
+                    // Optional
+                    String foregroundPrompt = getTextInputValue("foreground_prompt");
+                    String replaceBgNegPrompt = getTextInputValue("replace_bg_negative");
+                    String preserveSubject = String.valueOf(getSeekBarValue("preserve_subject"));
+                    String bgDepth = String.valueOf(getSeekBarValue("background_depth"));
+                    String lightStrength = String.valueOf(getSeekBarValue("light_strength"));
                     String lightDirection = spinners.get("light_direction").getSelectedItem().toString();
-                    if (!lightDirection.equals("none")) {
-                        requestBody.put("light_source_direction", lightDirection);
+                    String replaceBgOutputFormat = spinners.get("output_format").getSelectedItem().toString();
+                    String replaceBgSeed = getTextInputValue("replace_bg_seed");
+
+                    requestBody.put("foreground_prompt", foregroundPrompt);
+                    requestBody.put("negative_prompt", replaceBgNegPrompt);
+                    requestBody.put("preserve_original_subject", preserveSubject);
+                    requestBody.put("original_background_depth", bgDepth);
+                    requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
+                    requestBody.put("light_source_strength", lightStrength);
+                    requestBody.put("light_source_direction", lightDirection);
+                    requestBody.put("output_format", replaceBgOutputFormat);
+                    if (!replaceBgSeed.isEmpty()) {
+                        requestBody.put("seed", Long.parseLong(replaceBgSeed));
                     }
                     break;
             }
@@ -441,26 +605,35 @@ public class PromptActivity extends AppCompatActivity {
 
             String authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
             NetworkSender networkSender = new NetworkSender();
-
             networkSender.sendHttpRequest("/generate", requestBody.toString(), authToken,
                     new NetworkSender.ResponseCallback() {
                         @Override
                         public void onSuccess(String response) {
-                            runOnUiThread(() -> {
-                                try {
-                                    JSONObject jsonResponse = new JSONObject(response);
-                                    if (jsonResponse.has("error")) {
-                                        showError(jsonResponse.getString("error"));
-                                    } else {
-                                        showSuccess("Image generated successfully!");
-                                        // TODO: Handle the generated image response
-                                    }
-                                } catch (JSONException e) {
-                                    showError("Error processing response: " + e.getMessage());
-                                } finally {
-                                    setLoadingState(false);
+                            setLoadingState(false);
+                            try {
+                                JSONObject jsonResponse = new JSONObject(response);
+                                if (jsonResponse.has("error")) {
+                                    showError(jsonResponse.getString("error"));
+                                    return;
                                 }
-                            });
+
+                                // Assuming the response contains an "image" field with the Base64-encoded image or a URL
+                                String imageData = jsonResponse.getString("image");
+
+                                runOnUiThread(() -> {
+                                    if (imageData.startsWith("http")) {
+                                        // Load the image from the URL
+                                        loadImageFromUrl(imageData, imagePreviews.get(currentMode));
+                                    } else {
+                                        // Decode the Base64-encoded image
+                                        loadBase64Image(imageData, imagePreviews.get(currentMode));
+                                    }
+                                    showSuccess("Image generated successfully!");
+                                });
+
+                            } catch (Exception e) {
+                                showError("Error processing response: " + e.getMessage());
+                            }
                         }
 
                         @Override
@@ -475,6 +648,26 @@ public class PromptActivity extends AppCompatActivity {
         } catch (Exception e) {
             showError("Error preparing request: " + e.getMessage());
             setLoadingState(false);
+        }
+    }
+
+
+    private void loadImageFromUrl(String imageUrl, ImageView imageView) {
+        Picasso.get()
+                .load(imageUrl)
+                .into(imageView);
+        imageView.setVisibility(View.VISIBLE);
+    }
+
+
+    private void loadBase64Image(String base64Data, ImageView imageView) {
+        try {
+            byte[] decodedBytes = Base64.decode(base64Data, Base64.DEFAULT);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+            imageView.setImageBitmap(bitmap);
+            imageView.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+            showError("Error decoding image: " + e.getMessage());
         }
     }
 
@@ -543,6 +736,43 @@ public class PromptActivity extends AppCompatActivity {
             case "replace_bg": return R.id.replace_bg_upload_button;
             default: return 0;
         }
+    }
+
+    // Add these methods to the class
+    private String getOptionalString(String key) {
+        String value = getTextInputValue(key);
+        return value; // Empty string is already handled by getTextInputValue
+    }
+
+    private String getOptionalSeekBarValue(String key) {
+        SeekBar seekBar = seekBars.get(key);
+        if (seekBar != null) {
+            return String.valueOf(seekBar.getProgress() / (float)seekBar.getMax());
+        }
+        return "";
+    }
+
+    private String getOptionalSpinnerValue(String key) {
+        Spinner spinner = spinners.get(key);
+        if (spinner != null) {
+            return spinner.getSelectedItem().toString();
+        }
+        return "";
+    }
+
+    private String getOptionalSeedValue(String key) {
+        String value = getTextInputValue(key);
+        if (!value.isEmpty()) {
+            try {
+                long seed = Long.parseLong(value);
+                if (seed >= 0 && seed <= MAX_SEED_VALUE) {
+                    return value;
+                }
+            } catch (NumberFormatException e) {
+                // Return empty string if invalid
+            }
+        }
+        return "";
     }
 
     private String encodeImage(Uri imageUri) {
