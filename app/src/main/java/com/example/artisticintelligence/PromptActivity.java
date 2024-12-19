@@ -3,10 +3,13 @@ package com.example.artisticintelligence;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -15,12 +18,19 @@ import android.webkit.MimeTypeMap;
 import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import android.Manifest;
 
 
 public class PromptActivity extends AppCompatActivity {
@@ -295,7 +305,7 @@ public class PromptActivity extends AppCompatActivity {
     private void setLoadingState(boolean loading) {
         isProcessing = loading;
         loadingOverlay.setVisibility(loading ? View.VISIBLE : View.GONE);
-//        submitButton.setEnabled(!loading); // Disable/enable submit button
+        submitButton.setEnabled(!loading); // Disable/enable submit button
 
         // Disable all text inputs
         for (EditText input : textInputs.values()) {
@@ -322,7 +332,7 @@ public class PromptActivity extends AppCompatActivity {
         modeSpinner.setEnabled(!loading);
 
         // Optionally change button appearance to show disabled state
-        submitButton.setAlpha(loading ? 0.5f : 1.0f);
+//        submitButton.setAlpha(loading ? 0.5f : 1.0f);
     }
 
     private void updateVisibleLayout(int position) {
@@ -397,7 +407,7 @@ public class PromptActivity extends AppCompatActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Generated Image");
             builder.setView(imageView);
-            builder.setPositiveButton("Save", (dialog, which) -> saveImage(base64Image));
+            builder.setPositiveButton("Save", (dialog, which) -> saveImageToGallery(bitmap));
             builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss());
             builder.show();
         } catch (Exception e) {
@@ -405,51 +415,65 @@ public class PromptActivity extends AppCompatActivity {
         }
     }
 
-    private void saveImage(String base64Image) {
+    private void saveImageToGallery(Bitmap bitmap) {
         try {
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("user_id", userId);
-            requestBody.put("image", base64Image);
+            String fileName = "AI_Generated_" + System.currentTimeMillis() + ".jpg";
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/ArtisticIntelligence");
+                values.put(MediaStore.Images.Media.IS_PENDING, 1);
+            }
 
-            NetworkSender networkSender = new NetworkSender();
-            networkSender.sendHttpRequest("/saveImage", requestBody.toString(), authToken, new NetworkSender.ResponseCallback() {
-                @Override
-                public void onSuccess(String response) {
-                    runOnUiThread(() -> {
-                        try {
-                            JSONObject jsonResponse = new JSONObject(response);
-                            if (jsonResponse.has("error")) {
-                                Toast.makeText(PromptActivity.this,
-                                        "Error saving image: " + jsonResponse.getString("error"),
-                                        Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(PromptActivity.this,
-                                        "Image saved successfully!",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (Exception e) {
-                            Toast.makeText(PromptActivity.this,
-                                    "Error processing save response: " + e.getMessage(),
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+            ContentResolver resolver = getContentResolver();
+            Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
-                @Override
-                public void onError(String errorMessage) {
-                    runOnUiThread(() -> {
-                        Toast.makeText(PromptActivity.this,
-                                "Error saving image: " + errorMessage,
-                                Toast.LENGTH_SHORT).show();
-                    });
+            if (imageUri != null) {
+                try (OutputStream outputStream = resolver.openOutputStream(imageUri)) {
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        values.clear();
+                        values.put(MediaStore.Images.Media.IS_PENDING, 0);
+                        resolver.update(imageUri, values, null, null);
+                    }
+                    Toast.makeText(this, "Image saved successfully!", Toast.LENGTH_SHORT).show();
                 }
-            });
+            } else {
+                Toast.makeText(this, "Error: Could not save image", Toast.LENGTH_SHORT).show();
+            }
         } catch (Exception e) {
-            Toast.makeText(this,
-                    "Error preparing save request: " + e.getMessage(),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error saving image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    // Add permission request for older Android versions
+    private static final int PERMISSION_REQUEST_CODE = 1001;
+
+    private void checkStoragePermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Storage permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
 
     private void sendGenerateRequest() {
         try {
