@@ -38,6 +38,11 @@ public class PromptActivity extends AppCompatActivity {
     // Activity Result Launcher for image selection
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
+    // Add new UI component references
+    private Map<String, SeekBar> seekBars;
+    private Map<String, Spinner> spinners;
+    private CheckBox keepOriginalBackgroundCheckbox;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +52,7 @@ public class PromptActivity extends AppCompatActivity {
         initializeViews();
         setupImagePicker();
         setupModeSpinner();
+        setupSpinners();
         setupSubmitButton();
     }
 
@@ -55,6 +61,8 @@ public class PromptActivity extends AppCompatActivity {
         imagePreviews = new HashMap<>();
         selectedImages = new HashMap<>();
         textInputs = new HashMap<>();
+        seekBars = new HashMap<>();
+        spinners = new HashMap<>();
     }
 
     private void initializeViews() {
@@ -64,6 +72,7 @@ public class PromptActivity extends AppCompatActivity {
         loadingText = findViewById(R.id.loading_text);
 
         // Initialize layouts
+        modeLayouts.put("generate", findViewById(R.id.generate_layout));
         modeLayouts.put("sketch", findViewById(R.id.sketch_layout));
         modeLayouts.put("style", findViewById(R.id.style_layout));
         modeLayouts.put("outpaint", findViewById(R.id.outpaint_layout));
@@ -80,12 +89,70 @@ public class PromptActivity extends AppCompatActivity {
         imagePreviews.put("replace_bg", findViewById(R.id.replace_bg_image_preview));
 
         // Initialize text inputs
+        textInputs.put("generate", findViewById(R.id.generate_prompt_input));
+        textInputs.put("generate_negative", findViewById(R.id.generate_negative_prompt));
+        textInputs.put("generate_seed", findViewById(R.id.generate_seed));
         textInputs.put("sketch", findViewById(R.id.sketch_prompt_input));
+        textInputs.put("sketch_negative", findViewById(R.id.sketch_negative_prompt));
         textInputs.put("style", findViewById(R.id.style_prompt_input));
+        textInputs.put("style_negative", findViewById(R.id.style_negative_prompt));
         textInputs.put("outpaint", findViewById(R.id.outpaint_prompt_input));
+        textInputs.put("left_input", findViewById(R.id.left_input));
+        textInputs.put("right_input", findViewById(R.id.right_input));
+        textInputs.put("up_input", findViewById(R.id.up_input));
+        textInputs.put("down_input", findViewById(R.id.down_input));
         textInputs.put("search", findViewById(R.id.search_text_input));
         textInputs.put("replace", findViewById(R.id.replace_text_input));
-        textInputs.put("replace_bg", findViewById(R.id.replace_bg_prompt_input));
+        textInputs.put("search_negative", findViewById(R.id.search_negative_prompt));
+        textInputs.put("background_prompt", findViewById(R.id.replace_bg_prompt_input));
+        textInputs.put("foreground_prompt", findViewById(R.id.replace_bg_foreground_prompt));
+        textInputs.put("replace_bg_negative", findViewById(R.id.replace_bg_negative_prompt));
+
+        // Initialize seekbars
+        seekBars.put("control_strength", findViewById(R.id.control_strength_seekbar));
+        seekBars.put("fidelity", findViewById(R.id.fidelity_seekbar));
+        seekBars.put("creativity", findViewById(R.id.creativity_seekbar));
+        seekBars.put("preserve_subject", findViewById(R.id.replace_bg_preserve_subject));
+        seekBars.put("background_depth", findViewById(R.id.replace_bg_depth));
+        seekBars.put("light_strength", findViewById(R.id.light_source_strength));
+
+        // Initialize spinners
+//        spinners.put("generate_aspect_ratio", findViewById(R.id.generate_aspect_ratio_spinner));
+//        spinners.put("generate_output_format", findViewById(R.id.generate_output_format));
+//        spinners.put("output_format", findViewById(R.id.output_format_spinner));
+
+
+//        LinearLayout parentLayout = findViewById(R.id.main_container);
+//
+//        // Loop through child views and find ones with the specific tag
+//        for (int i = 0; i < parentLayout.getChildCount(); i++) {
+//            View child = parentLayout.getChildAt(i);
+//            if ("output_format_tag".equals(child.getTag())) {
+//                // Perform actions on views with tag "group1"
+//                if (child instanceof Spinner) {
+//                    Spinner spinner = (Spinner) child;
+//                    spinner.setAdapter(ArrayAdapter.createFromResource(this, R.array.output_formats, android.R.layout.simple_spinner_item));
+//                }
+//            }
+//        }
+
+        spinners.put("aspect_ratio_gen", findViewById(R.id.aspect_ratio_spinner_gen));
+        spinners.put("aspect_ratio", findViewById(R.id.aspect_ratio_spinner_style));
+
+        spinners.put("output_format", findViewById(R.id.output_format));
+        spinners.put("output_format_gen", findViewById(R.id.output_format_gen));
+        spinners.put("output_format_sketch", findViewById(R.id.output_format_sketch));
+        spinners.put("output_format_style", findViewById(R.id.output_format_style));
+        spinners.put("output_format_outpaint", findViewById(R.id.output_format_outpaint));
+        spinners.put("output_format_search_replace", findViewById(R.id.output_format_search_replace));
+        spinners.put("output_format_remove_bg", findViewById(R.id.output_format_remove_bg));
+
+        spinners.put("light_direction", findViewById(R.id.light_source_direction));
+
+
+        // Initialize checkboxes
+        keepOriginalBackgroundCheckbox = findViewById(R.id.keep_original_background);
+
 
         // Setup upload buttons
         setupUploadButton("sketch", R.id.sketch_upload_button);
@@ -125,8 +192,11 @@ public class PromptActivity extends AppCompatActivity {
     }
 
     private void setupModeSpinner() {
+
+        // spinner for generation modes
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.generation_modes, android.R.layout.simple_spinner_item);
+                R.array.generation_modes,
+                android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         modeSpinner.setAdapter(adapter);
 
@@ -143,6 +213,42 @@ public class PromptActivity extends AppCompatActivity {
         });
     }
 
+    private void setupSpinners() {
+        ArrayAdapter<CharSequence> outputFormatAdapter = ArrayAdapter.createFromResource(
+                this, R.array.output_formats, android.R.layout.simple_spinner_item);
+        outputFormatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ArrayAdapter<CharSequence> aspectRatioAdapter = ArrayAdapter.createFromResource(
+                this, R.array.aspect_ratios, android.R.layout.simple_spinner_item);
+        aspectRatioAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ArrayAdapter<CharSequence> LSDAdapter = ArrayAdapter.createFromResource(
+                this, R.array.light_source_directions, android.R.layout.simple_spinner_item);
+        aspectRatioAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
+        setupSpinner("output_format_gen", outputFormatAdapter);
+        setupSpinner("output_format_sketch", outputFormatAdapter);
+        setupSpinner("output_format_style", outputFormatAdapter);
+        setupSpinner("output_format_outpaint", outputFormatAdapter);
+        setupSpinner("output_format_search_replace", outputFormatAdapter);
+        setupSpinner("output_format_remove_bg", outputFormatAdapter);
+        setupSpinner("output_format", outputFormatAdapter);
+
+        setupSpinner("aspect_ratio_gen", aspectRatioAdapter);
+        setupSpinner("aspect_ratio", aspectRatioAdapter);
+
+        setupSpinner("light_direction", LSDAdapter);
+
+    }
+
+    private void setupSpinner(String spinnerKey, ArrayAdapter<CharSequence> adapter) {
+        Spinner spinner = spinners.get(spinnerKey);
+        if (spinner != null) {
+            spinner.setAdapter(adapter);
+        }
+    }
+
     private void updateVisibleLayout(int position) {
         String selectedMode = getSelectedMode(position);
         for (Map.Entry<String, View> entry : modeLayouts.entrySet()) {
@@ -153,7 +259,7 @@ public class PromptActivity extends AppCompatActivity {
     }
 
     private String getSelectedMode(int position) {
-        String[] modes = {"sketch", "style", "outpaint", "search_replace", "remove_bg", "replace_bg"};
+        String[] modes = {"generate", "sketch", "style", "outpaint", "search_replace", "remove_bg", "replace_bg"};
         return position < modes.length ? modes[position] : modes[0];
     }
 
@@ -168,37 +274,68 @@ public class PromptActivity extends AppCompatActivity {
     private boolean validateInputs() {
         String currentMode = getSelectedMode(modeSpinner.getSelectedItemPosition());
 
-        // Check required image uploads
-        if (currentMode.equals("remove_bg") && !selectedImages.containsKey("remove_bg")) {
-            showError("Please upload an image");
-            return false;
-        }
+        switch (currentMode) {
+            case "sketch":
+                if (getTextInputValue("sketch").isEmpty()) {
+                    showError("Please enter a prompt");
+                    return false;
+                }
+                break;
 
-        // Check required text inputs
-        EditText requiredInput = textInputs.get(currentMode);
-        if (requiredInput != null && requiredInput.getText().toString().trim().isEmpty()) {
-            showError("Please enter a description");
-            return false;
-        }
+            case "style":
+                if (getTextInputValue("style").isEmpty()) {
+                    showError("Please enter a style description");
+                    return false;
+                }
+                break;
 
-        // Mode-specific validation
-        if (currentMode.equals("search_replace")) {
-            EditText searchInput = textInputs.get("search");
-            EditText replaceInput = textInputs.get("replace");
-            if (searchInput.getText().toString().trim().isEmpty() ||
-                    replaceInput.getText().toString().trim().isEmpty()) {
-                showError("Please fill in both search and replace fields");
-                return false;
-            }
+            case "outpaint":
+                if (getTextInputValue("outpaint").isEmpty()) {
+                    showError("Please enter a prompt");
+                    return false;
+                }
+                if (!selectedImages.containsKey("outpaint")) {
+                    showError("Please upload an image to outpaint");
+                    return false;
+                }
+                break;
+
+            case "search_replace":
+                if (getTextInputValue("search").isEmpty() ||
+                        getTextInputValue("replace").isEmpty()) {
+                    showError("Please fill in both search and replace fields");
+                    return false;
+                }
+                if (!selectedImages.containsKey("search_replace")) {
+                    showError("Please upload an image");
+                    return false;
+                }
+                break;
+
+            case "remove_bg":
+                if (!selectedImages.containsKey("remove_bg")) {
+                    showError("Please upload an image");
+                    return false;
+                }
+                break;
+
+            case "replace_bg":
+                if (!selectedImages.containsKey("replace_bg")) {
+                    showError("Please upload an image");
+                    return false;
+                }
+                if (getTextInputValue("background_prompt").isEmpty()) {
+                    showError("Please enter a background prompt");
+                    return false;
+                }
+                break;
         }
 
         return true;
     }
 
     private void processSubmission() {
-        if (isProcessing) {
-            return; // Prevent multiple submissions
-        }
+        if (isProcessing) return; // Prevent multiple submissions
 
         String currentMode = getSelectedMode(modeSpinner.getSelectedItemPosition());
         setLoadingState(true);
@@ -208,45 +345,99 @@ public class PromptActivity extends AppCompatActivity {
             JSONObject requestBody = new JSONObject();
             requestBody.put("mode", currentMode);
 
-            // Add mode-specific parameters
+            // Add common parameters
+            if (spinners.get("output_format") != null) {
+                requestBody.put("output_format", spinners.get("output_format").getSelectedItem().toString());
+            }
+
+            // Mode-specific parameters
             switch (currentMode) {
+                case "generate":
+                    requestBody.put("prompt", textInputs.get("generate").getText().toString());
+                    requestBody.put("negative_prompt", textInputs.get("generate_negative").getText().toString());
+                    requestBody.put("aspect_ratio", spinners.get("generate_aspect_ratio").getSelectedItem().toString());
+                    requestBody.put("output_format", spinners.get("generate_output_format").getSelectedItem().toString());
+                    String seed = textInputs.get("generate_seed").getText().toString();
+
+                    if (!seed.isEmpty()) {
+                        requestBody.put("seed", Integer.parseInt(seed));
+                    }
+                    break;
+
                 case "sketch":
                     requestBody.put("prompt", textInputs.get("sketch").getText().toString());
+                    requestBody.put("negative_prompt", textInputs.get("sketch_negative").getText().toString());
+                    requestBody.put("control_strength", getSeekBarValue("control_strength"));
+                    requestBody.put("output_format", spinners.get("generate_output_format").getSelectedItem().toString());
+
                     if (selectedImages.containsKey("sketch")) {
                         requestBody.put("reference_image", encodeImage(selectedImages.get("sketch")));
                     }
                     break;
+
                 case "style":
                     requestBody.put("prompt", textInputs.get("style").getText().toString());
+                    requestBody.put("negative_prompt", textInputs.get("style_negative").getText().toString());
+                    requestBody.put("aspect_ratio", spinners.get("aspect_ratio").getSelectedItem().toString());
+                    requestBody.put("fidelity", getSeekBarValue("fidelity"));
                     if (selectedImages.containsKey("style")) {
                         requestBody.put("image", encodeImage(selectedImages.get("style")));
                     }
                     break;
+
                 case "outpaint":
                     requestBody.put("prompt", textInputs.get("outpaint").getText().toString());
+                    requestBody.put("left", getTextInputValue("left_input"));
+                    requestBody.put("right", getTextInputValue("right_input"));
+                    requestBody.put("up", getTextInputValue("up_input"));
+                    requestBody.put("down", getTextInputValue("down_input"));
+                    requestBody.put("creativity", getSeekBarValue("creativity"));
                     if (selectedImages.containsKey("outpaint")) {
                         requestBody.put("image", encodeImage(selectedImages.get("outpaint")));
                     }
                     break;
+
                 case "search_replace":
-                    requestBody.put("search", textInputs.get("search").getText().toString());
-                    requestBody.put("replace", textInputs.get("replace").getText().toString());
+                    requestBody.put("prompt", textInputs.get("search").getText().toString());
+                    requestBody.put("search_prompt", textInputs.get("search").getText().toString());
+                    requestBody.put("negative_prompt", textInputs.get("search_negative").getText().toString());
                     if (selectedImages.containsKey("search_replace")) {
                         requestBody.put("image", encodeImage(selectedImages.get("search_replace")));
                     }
                     break;
+
                 case "remove_bg":
                     if (selectedImages.containsKey("remove_bg")) {
                         requestBody.put("image", encodeImage(selectedImages.get("remove_bg")));
                     }
                     break;
+
                 case "replace_bg":
-                    requestBody.put("prompt", textInputs.get("replace_bg").getText().toString());
                     if (selectedImages.containsKey("replace_bg")) {
                         requestBody.put("image", encodeImage(selectedImages.get("replace_bg")));
                     }
+                    // Required inputs
+                    requestBody.put("background_prompt", textInputs.get("background_prompt").getText().toString());
+
+                    // Optional inputs
+                    String foregroundPrompt = textInputs.get("foreground_prompt").getText().toString();
+                    if (!foregroundPrompt.isEmpty()) {
+                        requestBody.put("foreground_prompt", foregroundPrompt);
+                    }
+
+                    requestBody.put("negative_prompt", textInputs.get("replace_bg_negative").getText().toString());
+                    requestBody.put("preserve_original_subject", getSeekBarValue("preserve_subject"));
+                    requestBody.put("original_background_depth", getSeekBarValue("background_depth"));
+                    requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
+                    requestBody.put("light_source_strength", getSeekBarValue("light_strength"));
+
+                    String lightDirection = spinners.get("light_direction").getSelectedItem().toString();
+                    if (!lightDirection.equals("none")) {
+                        requestBody.put("light_source_direction", lightDirection);
+                    }
                     break;
             }
+
 
             String authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
             NetworkSender networkSender = new NetworkSender();
@@ -287,6 +478,19 @@ public class PromptActivity extends AppCompatActivity {
         }
     }
 
+    private float getSeekBarValue(String key) {
+        SeekBar seekBar = seekBars.get(key);
+        if (seekBar != null) {
+            return (float) seekBar.getProgress() / seekBar.getMax();
+        }
+        return 0f;
+    }
+
+    private String getTextInputValue(String key) {
+        EditText input = textInputs.get(key);
+        return input != null ? input.getText().toString().trim() : "";
+    }
+
     private void setLoadingState(boolean loading) {
         isProcessing = loading;
         loadingOverlay.setVisibility(loading ? View.VISIBLE : View.GONE);
@@ -302,12 +506,30 @@ public class PromptActivity extends AppCompatActivity {
             }
         }
 
+        // Disable all seekbars
+        for (SeekBar seekBar : seekBars.values()) {
+            if (seekBar != null) {
+                seekBar.setEnabled(!loading);
+            }
+        }
+
+        // Disable all spinners
+        for (Spinner spinner : spinners.values()) {
+            if (spinner != null) {
+                spinner.setEnabled(!loading);
+            }
+        }
+
         // Disable all upload buttons
         for (String mode : modeLayouts.keySet()) {
             Button uploadButton = findViewById(getUploadButtonId(mode));
             if (uploadButton != null) {
                 uploadButton.setEnabled(!loading);
             }
+        }
+
+        if (keepOriginalBackgroundCheckbox != null) {
+            keepOriginalBackgroundCheckbox.setEnabled(!loading);
         }
     }
 

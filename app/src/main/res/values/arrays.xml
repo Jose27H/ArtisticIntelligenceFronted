@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="generation_modes">
+        <item>Generate</item>
         <item>Sketch</item>
         <item>Style</item>
         <item>Outpaint</item>
@@ -8,4 +9,29 @@
         <item>Remove Background</item>
         <item>Replace Background &amp; Relight</item>
     </string-array>
+
+    <string-array name="output_formats">
+        <item>png</item>
+        <item>jpeg</item>
+        <item>webp</item>
+    </string-array>
+
+    <string-array name="aspect_ratios">
+        <item>1:1</item>
+        <item>2:3</item>
+        <item>3:2</item>
+        <item>4:5</item>
+        <item>5:4</item>
+        <item>9:16</item>
+        <item>16:9</item>
+        <item>21:9</item>
+    </string-array>
+
+    <string-array name="light_source_directions">
+        <item>left</item>
+        <item>right</item>
+        <item>above</item>
+        <item>below</item>
+    </string-array>
+
 </resources>

@@ -134,8 +134,8 @@ public class Homepage extends AppCompatActivity {
                     JSONObject jsonResponse = new JSONObject(response);
 
                     // Extract the user_id
-                 userId = jsonResponse.getString("user_id");
-                 navigateToWelcomeActivity(userId, token);
+                    userId = jsonResponse.getString("user_id");
+                    navigateToWelcomeActivity(userId, token);
 
 
                 } catch (JSONException e) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,6 +9,7 @@
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
+      android:id="@+id/main_container"
       android:padding="16dp">
 
     <!-- Mode Selector Spinner -->
@@ -31,6 +33,73 @@
           android:layout_height="wrap_content"
           android:orientation="vertical">
 
+        <!-- Image Generation Mode -->
+        <LinearLayout
+            android:id="@+id/generate_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+          <EditText
+              android:id="@+id/generate_prompt_input"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Enter description"
+              android:padding="12dp"
+              android:background="@android:drawable/editbox_background"
+              android:layout_marginBottom="16dp"/>
+
+          <EditText
+              android:id="@+id/generate_negative_prompt"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Enter negative prompt (optional)"
+              android:padding="12dp"
+              android:background="@android:drawable/editbox_background"
+              android:layout_marginBottom="16dp"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Aspect Ratio"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/aspect_ratio_spinner_gen"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_gen"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Seed (optional)"
+              android:layout_marginTop="16dp"/>
+
+          <EditText
+              android:id="@+id/generate_seed"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:inputType="number"
+              android:layout_marginBottom="16dp"/>
+
+        </LinearLayout>
+
         <!-- Sketch Mode -->
         <LinearLayout
             android:id="@+id/sketch_layout"
@@ -47,6 +116,44 @@
               android:padding="12dp"
               android:background="@android:drawable/editbox_background"
               android:layout_marginBottom="16dp"/>
+
+          <EditText
+              android:id="@+id/sketch_negative_prompt"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Enter negative prompt (optional)"
+              android:padding="12dp"
+              android:background="@android:drawable/editbox_background"
+              android:layout_marginBottom="16dp"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Control Strength (0-1)"
+              android:layout_marginBottom="8dp"/>
+
+          <SeekBar
+              android:id="@+id/control_strength_seekbar"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:max="100"
+              android:progress="70"
+              android:layout_marginBottom="16dp"/>
+
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_sketch"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds" />
+
 
           <ImageView
               android:id="@+id/sketch_image_preview"
@@ -80,6 +187,55 @@
               android:background="@android:drawable/editbox_background"
               android:layout_marginBottom="16dp"/>
 
+          <EditText
+              android:id="@+id/style_negative_prompt"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Enter negative prompt (optional)"
+              android:padding="12dp"
+              android:background="@android:drawable/editbox_background"
+              android:layout_marginBottom="16dp"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Fidelity (0-1)"
+              android:layout_marginBottom="8dp"/>
+
+          <SeekBar
+              android:id="@+id/fidelity_seekbar"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:max="100"
+              android:progress="50"
+              android:layout_marginBottom="16dp"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Aspect Ratio"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/aspect_ratio_spinner_style"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_style"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
           <ImageView
               android:id="@+id/style_image_preview"
               android:layout_width="match_parent"
@@ -93,6 +249,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:text="Upload Image to Style"/>
+
         </LinearLayout>
 
         <!-- Outpaint Mode -->
@@ -112,6 +269,85 @@
               android:background="@android:drawable/editbox_background"
               android:layout_marginBottom="16dp"/>
 
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/left_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Left"
+                android:inputType="number"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp"/>
+
+            <EditText
+                android:id="@+id/right_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Right"
+                android:inputType="number"
+                android:padding="12dp"/>
+          </LinearLayout>
+
+          <LinearLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
+              android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/up_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Up"
+                android:inputType="number"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp"/>
+
+            <EditText
+                android:id="@+id/down_input"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Down"
+                android:inputType="number"
+                android:padding="12dp"/>
+          </LinearLayout>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Creativity (0-1)"
+              android:layout_marginBottom="8dp"/>
+
+          <SeekBar
+              android:id="@+id/creativity_seekbar"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:max="100"
+              android:progress="50"
+              android:layout_marginBottom="16dp"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_outpaint"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
           <ImageView
               android:id="@+id/outpaint_image_preview"
               android:layout_width="match_parent"
@@ -125,6 +361,7 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:text="Upload Image to Outpaint"/>
+
         </LinearLayout>
 
         <!-- Search & Replace Mode -->
@@ -153,6 +390,28 @@
               android:background="@android:drawable/editbox_background"
               android:layout_marginBottom="16dp"/>
 
+          <EditText
+              android:id="@+id/search_negative_prompt"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Enter negative prompt (optional)"
+              android:padding="12dp"
+              android:background="@android:drawable/editbox_background"
+              android:layout_marginBottom="16dp"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_search_replace"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
           <ImageView
               android:id="@+id/search_replace_image_preview"
               android:layout_width="match_parent"
@@ -166,6 +425,8 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:text="Upload Image"/>
+
+
         </LinearLayout>
 
         <!-- Remove Background Mode -->
@@ -175,6 +436,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone">
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Upload an image to remove its background"
+              android:textStyle="italic"
+              android:layout_marginBottom="8dp"/>
 
           <ImageView
               android:id="@+id/remove_bg_image_preview"
@@ -189,6 +457,19 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:text="Upload Image"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format_remove_bg"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
         </LinearLayout>
 
         <!-- Replace Background & Relight Mode -->
@@ -199,13 +480,14 @@
             android:orientation="vertical"
             android:visibility="gone">
 
-          <EditText
-              android:id="@+id/replace_bg_prompt_input"
+          <!-- Required Inputs Section -->
+          <TextView
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:hint="Enter new background description"
-              android:padding="12dp"
-              android:background="@android:drawable/editbox_background"
+              android:text="Required Inputs"
+              android:textStyle="bold"
+              android:background="@android:color/darker_gray"
+              android:padding="8dp"
               android:layout_marginBottom="16dp"/>
 
           <ImageView
@@ -220,7 +502,142 @@
               android:id="@+id/replace_bg_upload_button"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:text="Upload Image"/>
+              android:text="Upload Subject Image"/>
+
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Background Prompt"
+              android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/replace_bg_prompt_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Optional Inputs Section -->
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Optional Settings"
+              android:textStyle="bold"
+              android:background="@android:color/darker_gray"
+              android:padding="8dp"
+              android:layout_marginBottom="16dp"/>
+
+          <!-- Foreground Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Foreground Prompt">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/replace_bg_foreground_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Negative Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Negative Prompt"
+              android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/replace_bg_negative_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <!-- Sliders -->
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Preserve Original Subject (0-1)"
+              android:layout_marginTop="16dp"/>
+
+          <SeekBar
+              android:id="@+id/replace_bg_preserve_subject"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:max="100"
+              android:progress="90"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Original Background Depth (0-1)"
+              android:layout_marginTop="16dp"/>
+
+          <SeekBar
+              android:id="@+id/replace_bg_depth"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:max="100"
+              android:progress="10"/>
+
+          <!-- Checkbox -->
+          <CheckBox
+              android:id="@+id/keep_original_background"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Keep Original Background"
+              android:layout_marginTop="16dp"/>
+
+          <!-- Light Settings -->
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Light Source Strength (0-1)"
+              android:layout_marginTop="16dp"/>
+
+          <SeekBar
+              android:id="@+id/light_source_strength"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:max="100"
+              android:progress="70"/>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Light Source Direction (left, right, above, below)"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/light_source_direction"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"/>
+
+          <!-- Seed Prompt -->
+          <com.google.android.material.textfield.TextInputLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Seed (optional)">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/replace_bg_seed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"/>
+          </com.google.android.material.textfield.TextInputLayout>
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="Output Format"
+              android:layout_marginTop="16dp"/>
+
+          <Spinner
+              android:id="@+id/output_format"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="16dp"
+              tools:ignore="DuplicateIds"/>
+
         </LinearLayout>
 
       </LinearLayout>
