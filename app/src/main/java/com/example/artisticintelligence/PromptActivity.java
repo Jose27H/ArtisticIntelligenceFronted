@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -20,8 +19,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
 import java.io.IOException;
@@ -455,7 +452,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("negative_prompt", getOptionalString("generate_negative"));
             requestBody.put("aspect_ratio", spinners.get("aspect_ratio_gen").getSelectedItem().toString());
             requestBody.put("filetype", spinners.get("output_format_gen").getSelectedItem().toString());
-            requestBody.put("user_id", 2);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
             String seed = getOptionalSeedValue("generate_seed");
             if (!seed.isEmpty()) {
@@ -501,7 +498,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("negative_prompt", getOptionalString("sketch_negative"));
             requestBody.put("control_strength", getOptionalSeekBarValue("control_strength"));
             requestBody.put("filetype", spinners.get("output_format_sketch").getSelectedItem().toString());
-            requestBody.put("user_id", userId);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
             String seed = getOptionalSeedValue("sketch_seed");
             if (!seed.isEmpty()) {
@@ -548,7 +545,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("negative_prompt", getOptionalString("style_negative"));
             requestBody.put("fidelity", getOptionalSeekBarValue("fidelity"));
             requestBody.put("filetype", spinners.get("output_format_style").getSelectedItem().toString());
-            requestBody.put("user_id", userId);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
             String seed = getOptionalSeedValue("style_seed");
             if (!seed.isEmpty()) {
@@ -597,7 +594,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("down", getTextInputValue("down_input"));
             requestBody.put("creativity", getOptionalSeekBarValue("creativity"));
             requestBody.put("filetype", spinners.get("output_format_outpaint").getSelectedItem().toString());
-            requestBody.put("user_id", userId);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
             String seed = getOptionalSeedValue("outpaint_seed");
             if (!seed.isEmpty()) {
@@ -643,7 +640,7 @@ public class PromptActivity extends AppCompatActivity {
 
             requestBody.put("negative_prompt", getOptionalString("search_negative"));
             requestBody.put("filetype", spinners.get("output_format_search_replace").getSelectedItem().toString());
-            requestBody.put("user_id", userId);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
             String seed = getOptionalSeedValue("search_replace_seed");
             if (!seed.isEmpty()) {
@@ -686,7 +683,7 @@ public class PromptActivity extends AppCompatActivity {
             }
 
             requestBody.put("filetype", spinners.get("output_format_remove_bg").getSelectedItem().toString());
-            requestBody.put("user_id", userId);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
 
             NetworkSender networkSender = new NetworkSender();
@@ -735,7 +732,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("light_source_strength", getOptionalSeekBarValue("light_strength"));
             requestBody.put("light_source_direction", spinners.get("light_direction").getSelectedItem().toString());
             requestBody.put("filetype", spinners.get("output_format").getSelectedItem().toString());
-            requestBody.put("user_id", userId);
+            requestBody.put("user_id", Integer.parseInt(userId));
 
             String seed = getOptionalSeedValue("replace_bg_seed");
             if (!seed.isEmpty()) {
