@@ -53,6 +53,7 @@ public class Welcome extends AppCompatActivity {
 
         generateImageButton.setOnClickListener(this::clickGenerateImage);
         viewGeneratedImageButton.setOnClickListener(this::clickViewGeneratedImages);
+        viewImagesFromCommunityButton.setOnClickListener(this::clickViewImagesFromCommunity);
 
     }
 
@@ -68,7 +69,17 @@ public class Welcome extends AppCompatActivity {
         Intent intent = new Intent(this, ViewImagesActivity.class);
         intent.putExtra("USER_ID", userId);
         intent.putExtra("GOOGLE_TOKEN", authToken);
+        intent.putExtra("FLAG", true);
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);;
+        startActivity(intent);
+    }
+
+    private void clickViewImagesFromCommunity(View v) {
+        Intent intent = new Intent(this, ViewImagesActivity.class);
+        intent.putExtra("USER_ID", userId);
+        intent.putExtra("GOOGLE_TOKEN", authToken);
+        intent.putExtra("FLAG", false);
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         startActivity(intent);
     }
 

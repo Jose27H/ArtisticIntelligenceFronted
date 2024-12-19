@@ -370,7 +370,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("prompt", getTextInputValue("sketch"));
 
             if (selectedImages.containsKey("sketch")) {
-                requestBody.put("b64String", encodeImage(selectedImages.get("sketch")));
+                requestBody.put("b64_string", encodeImage(selectedImages.get("sketch")));
             }
 
             requestBody.put("negative_prompt", getOptionalString("sketch_negative"));
@@ -415,7 +415,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("prompt", getTextInputValue("style"));
 
             if (selectedImages.containsKey("style")) {
-                requestBody.put("b64String", encodeImage(selectedImages.get("style")));
+                requestBody.put("b64_string", encodeImage(selectedImages.get("style")));
             }
 
             requestBody.put("negative_prompt", getOptionalString("style_negative"));
@@ -457,7 +457,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("prompt", getTextInputValue("outpaint"));
 
             if (selectedImages.containsKey("outpaint")) {
-                requestBody.put("b64String", encodeImage(selectedImages.get("outpaint")));
+                requestBody.put("b64_string", encodeImage(selectedImages.get("outpaint")));
             }
 
             requestBody.put("left", getTextInputValue("left_input"));
@@ -503,7 +503,7 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("replacementPrompt", getTextInputValue("replace"));
 
             if (selectedImages.containsKey("search_replace")) {
-                requestBody.put("b64String", encodeImage(selectedImages.get("search_replace")));
+                requestBody.put("b64_string", encodeImage(selectedImages.get("search_replace")));
             }
 
             requestBody.put("negative_prompt", getOptionalString("search_negative"));
@@ -543,7 +543,7 @@ public class PromptActivity extends AppCompatActivity {
             JSONObject requestBody = new JSONObject();
 
             if (selectedImages.containsKey("remove_bg")) {
-                requestBody.put("b64String", encodeImage(selectedImages.get("remove_bg")));
+                requestBody.put("b64_string", encodeImage(selectedImages.get("remove_bg")));
             }
 
             requestBody.put("filetype", spinners.get("output_format_remove_bg").getSelectedItem().toString());
@@ -575,7 +575,7 @@ public class PromptActivity extends AppCompatActivity {
             JSONObject requestBody = new JSONObject();
 
             if (selectedImages.containsKey("replace_bg")) {
-                requestBody.put("b64String", encodeImage(selectedImages.get("replace_bg")));
+                requestBody.put("b64_string", encodeImage(selectedImages.get("replace_bg")));
             }
 
             requestBody.put("background_prompt", getTextInputValue("background_prompt"));
