@@ -356,6 +356,7 @@ public class PromptActivity extends AppCompatActivity {
                 switch (currentMode) {
                     case "generate":
                         sendGenerateRequest();
+                        break;
                     case "sketch":
                         sendSketchRequest();
                         break;
