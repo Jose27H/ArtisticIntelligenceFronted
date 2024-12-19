@@ -35,10 +35,6 @@ public class AuthenticationManager {
         googleSignInClient.signOut().addOnCompleteListener(callback);
     }
 
-    public GoogleSignInAccount getLastSignedInAccount() {
-        return GoogleSignIn.getLastSignedInAccount(context);
-    }
-
     public void handleSignInResult(Task<GoogleSignInAccount> completedTask, SignInCallback callback) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);

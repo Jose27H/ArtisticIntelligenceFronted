@@ -2,15 +2,9 @@ package com.example.artisticintelligence;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -22,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Homepage extends AppCompatActivity {
-    private static final String TAG = "Homepage";
 
     private static final int RC_SIGN_IN = 1001;
     private SignInButton googleSignInButton;
