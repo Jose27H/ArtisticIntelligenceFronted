@@ -325,9 +325,10 @@ public class PromptActivity extends AppCompatActivity {
                     case "search_replace":
                         sendSearchAndReplaceRequest();
                         break;
-                    case "removeBackground":
+                    case "remove_bg":
                         sendRemoveBackgroundRequest();
-                    case "removeBackgroundAndRelight":
+                        break;
+                    case "replace_bg":
                         sendRemoveBackgroundAndRelightRequest();
                         break;
                     default:
@@ -718,14 +719,14 @@ public class PromptActivity extends AppCompatActivity {
                 }
                 break;
 
-            case "removeBackground":
+            case "remove_bg":
                 if (!selectedImages.containsKey("remove_bg")) {
                     showError("Please upload an image for Remove Background mode.");
                     return false;
                 }
                 break;
 
-            case "removeBackgroundAndRelight":
+            case "replace_bg":
                 if (!selectedImages.containsKey("replace_bg")) {
                     showError("Please upload an image for Remove Background and Relight mode.");
                     return false;
