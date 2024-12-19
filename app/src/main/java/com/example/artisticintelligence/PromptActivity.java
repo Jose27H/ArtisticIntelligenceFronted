@@ -608,9 +608,14 @@ public class PromptActivity extends AppCompatActivity {
             requestBody.put("background_prompt", getTextInputValue("background_prompt"));
             requestBody.put("foreground_prompt", getOptionalString("foreground_prompt"));
             requestBody.put("negative_prompt", getOptionalString("replace_bg_negative"));
-            requestBody.put("preserve_subject", getOptionalSeekBarValue("preserve_subject"));
-            requestBody.put("background_depth", getOptionalSeekBarValue("background_depth"));
-            requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
+            requestBody.put("preserve_original_subject", getOptionalSeekBarValue("preserve_subject"));
+            requestBody.put("original_background_depth", getOptionalSeekBarValue("background_depth"));
+            if (keepOriginalBackgroundCheckbox.isChecked()){
+                requestBody.put("keep_original_background", "true");
+            }
+            else{
+                requestBody.put("keep_original_background", "false");
+            }
             requestBody.put("light_source_strength", getOptionalSeekBarValue("light_strength"));
             requestBody.put("light_source_direction", spinners.get("light_direction").getSelectedItem().toString());
             requestBody.put("filetype", spinners.get("output_format").getSelectedItem().toString());
