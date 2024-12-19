@@ -18,8 +18,8 @@ import javax.net.ssl.X509TrustManager;
 public class NetworkSender {
     private static final String TAG = "NetworkSender";
     private static final String BASE_URL = "https://artisticintelligencebackend-production.up.railway.app";
-    private static final int CONNECTION_TIMEOUT = 30000;
-    private static final int READ_TIMEOUT = 30000;
+    private static final int CONNECTION_TIMEOUT = 45000;
+    private static final int READ_TIMEOUT = 45000;
     private static final String CHARSET = "UTF-8";
 
     public interface ResponseCallback {

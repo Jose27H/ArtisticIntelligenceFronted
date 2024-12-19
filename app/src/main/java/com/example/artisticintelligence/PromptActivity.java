@@ -16,10 +16,6 @@ import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +24,6 @@ import java.util.Map;
 
 
 public class PromptActivity extends AppCompatActivity {
-    private static final String TAG = "PromptActivity";
-
     private static final long MAX_SEED_VALUE = 4294967294L;
     private static final int MAX_OUTPAINT_VALUE = 2000;
 
@@ -135,26 +129,6 @@ public class PromptActivity extends AppCompatActivity {
         seekBars.put("background_depth", findViewById(R.id.replace_bg_depth));
         seekBars.put("light_strength", findViewById(R.id.light_source_strength));
 
-        // Initialize spinners
-//        spinners.put("generate_aspect_ratio", findViewById(R.id.generate_aspect_ratio_spinner));
-//        spinners.put("generate_output_format", findViewById(R.id.generate_output_format));
-//        spinners.put("output_format", findViewById(R.id.output_format_spinner));
-
-
-//        LinearLayout parentLayout = findViewById(R.id.main_container);
-//
-//        // Loop through child views and find ones with the specific tag
-//        for (int i = 0; i < parentLayout.getChildCount(); i++) {
-//            View child = parentLayout.getChildAt(i);
-//            if ("output_format_tag".equals(child.getTag())) {
-//                // Perform actions on views with tag "group1"
-//                if (child instanceof Spinner) {
-//                    Spinner spinner = (Spinner) child;
-//                    spinner.setAdapter(ArrayAdapter.createFromResource(this, R.array.output_formats, android.R.layout.simple_spinner_item));
-//                }
-//            }
-//        }
-
         spinners.put("aspect_ratio_gen", findViewById(R.id.aspect_ratio_spinner_gen));
         spinners.put("aspect_ratio", findViewById(R.id.aspect_ratio_spinner_style));
 
@@ -181,25 +155,6 @@ public class PromptActivity extends AppCompatActivity {
         setupUploadButton("remove_bg", R.id.remove_bg_upload_button);
         setupUploadButton("replace_bg", R.id.replace_bg_upload_button);
     }
-
-//    private void setupImagePicker() {
-//        imagePickerLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-//                        Uri selectedImageUri = result.getData().getData();
-//                        if (selectedImageUri != null && currentUploadMode != null) {
-//                            selectedImages.put(currentUploadMode, selectedImageUri);
-//                            ImageView preview = imagePreviews.get(currentUploadMode);
-//                            if (preview != null) {
-//                                preview.setImageURI(selectedImageUri);
-//                                preview.setVisibility(View.VISIBLE);
-//                            }
-//                        }
-//                    }
-//                }
-//        );
-//    }
 
     private void setupImagePicker() {
         imagePickerLauncher = registerForActivityResult(
@@ -367,7 +322,7 @@ public class PromptActivity extends AppCompatActivity {
                     case "outpaint":
                         sendOutpaintRequest();
                         break;
-                    case "searchAndReplace":
+                    case "search_replace":
                         sendSearchAndReplaceRequest();
                         break;
                     case "removeBackground":
@@ -570,8 +525,8 @@ public class PromptActivity extends AppCompatActivity {
     private void sendSearchAndReplaceRequest() {
         try {
             JSONObject requestBody = new JSONObject();
-            requestBody.put("searchPrompt", getTextInputValue("search"));
-            requestBody.put("replacementPrompt", getTextInputValue("replace"));
+            requestBody.put("search_prompt", getTextInputValue("search"));
+            requestBody.put("replacement_prompt", getTextInputValue("replace"));
 
             if (selectedImages.containsKey("search_replace")) {
                 requestBody.put("b64_string", encodeImage(selectedImages.get("search_replace")));
@@ -688,445 +643,6 @@ public class PromptActivity extends AppCompatActivity {
         }
     }
 
-
-
-//    private void sendSketchRequest() {
-//        try {
-//            JSONObject requestBody = new JSONObject();
-//            requestBody.put("mode", "sketch");
-//            requestBody.put("prompt", getTextInputValue("sketch"));
-//
-//            if (selectedImages.containsKey("sketch")) {
-//                requestBody.put("reference_image", encodeImage(selectedImages.get("sketch")));
-//            }
-//
-//            requestBody.put("negative_prompt", getOptionalString("sketch_negative"));
-//            requestBody.put("control_strength", getOptionalSeekBarValue("control_strength"));
-//            requestBody.put("output_format", spinners.get("output_format_sketch").getSelectedItem().toString());
-//
-//            String seed = getOptionalSeedValue("sketch_seed");
-//            if (!seed.isEmpty()) {
-//                requestBody.put("seed", seed);
-//            }
-//            else {
-//                requestBody.put("seed", "");
-//            }
-//
-//            sendHttpRequest(requestBody, "sketch");
-//        } catch (Exception e) {
-//            showError("Error preparing Sketch request: " + e.getMessage());
-//        }
-//    }
-//
-//    private void sendStyleRequest() {
-//        try {
-//            JSONObject requestBody = new JSONObject();
-//            requestBody.put("mode", "style");
-//            requestBody.put("prompt", getTextInputValue("style"));
-//            requestBody.put("negative_prompt", getOptionalString("style_negative"));
-//            requestBody.put("aspect_ratio", spinners.get("aspect_ratio").getSelectedItem().toString());
-//            requestBody.put("fidelity", getOptionalSeekBarValue("fidelity"));
-//
-//            if (selectedImages.containsKey("style")) {
-//                requestBody.put("image", encodeImage(selectedImages.get("style")));
-//            }
-//
-//            String seed = getOptionalSeedValue("style_seed");
-//            if (!seed.isEmpty()) {
-//                requestBody.put("seed", seed);
-//            }
-//            else {
-//                requestBody.put("seed", "");
-//            }
-//
-//            sendHttpRequest(requestBody, "style");
-//        } catch (Exception e) {
-//            showError("Error preparing Style request: " + e.getMessage());
-//        }
-//    }
-//
-//    private void sendOutpaintRequest() {
-//        try {
-//            JSONObject requestBody = new JSONObject();
-//            requestBody.put("mode", "outpaint");
-//            requestBody.put("prompt", getTextInputValue("outpaint"));
-//
-//            if (selectedImages.containsKey("outpaint")) {
-//                requestBody.put("image", encodeImage(selectedImages.get("outpaint")));
-//            }
-//
-//            requestBody.put("left", getTextInputValue("left_input"));
-//            requestBody.put("right", getTextInputValue("right_input"));
-//            requestBody.put("up", getTextInputValue("up_input"));
-//            requestBody.put("down", getTextInputValue("down_input"));
-//            requestBody.put("creativity", getOptionalSeekBarValue("creativity"));
-//            requestBody.put("output_format", spinners.get("output_format_outpaint").getSelectedItem().toString());
-//
-//            String seed = getOptionalSeedValue("outpaint_seed");
-//            if (!seed.isEmpty()) {
-//                requestBody.put("seed", seed);
-//            }
-//            else {
-//                requestBody.put("seed", "");
-//            }
-//
-//            sendHttpRequest(requestBody, "outpaint");
-//        } catch (Exception e) {
-//            showError("Error preparing Outpaint request: " + e.getMessage());
-//        }
-//    }
-//
-//    private void sendSearchAndReplaceRequest() {
-//        try {
-//            JSONObject requestBody = new JSONObject();
-//            requestBody.put("mode", "searchAndReplace");
-//            requestBody.put("search_prompt", getTextInputValue("search"));
-//            requestBody.put("replace_prompt", getTextInputValue("replace"));
-//
-//            if (selectedImages.containsKey("search_replace")) {
-//                requestBody.put("image", encodeImage(selectedImages.get("search_replace")));
-//            }
-//
-//            requestBody.put("negative_prompt", getOptionalString("search_negative"));
-//            requestBody.put("output_format", spinners.get("output_format_search_replace").getSelectedItem().toString());
-//
-//            String seed = getOptionalSeedValue("search_replace_seed");
-//            if (!seed.isEmpty()) {
-//                requestBody.put("seed", seed);
-//            }
-//            else {
-//                requestBody.put("seed", "");
-//            }
-//
-//            sendHttpRequest(requestBody, "searchAndReplace");
-//        } catch (Exception e) {
-//            showError("Error preparing Search and Replace request: " + e.getMessage());
-//        }
-//    }
-//
-//    private void sendRemoveBackgroundRequest() {
-//        try {
-//            JSONObject requestBody = new JSONObject();
-//            requestBody.put("mode", "removeBackground");
-//
-//            if (selectedImages.containsKey("remove_bg")) {
-//                requestBody.put("image", encodeImage(selectedImages.get("remove_bg")));
-//            }
-//
-//            requestBody.put("output_format", spinners.get("output_format_remove_bg").getSelectedItem().toString());
-//
-//            String seed = getOptionalSeedValue("remove_bg_seed");
-//            if (!seed.isEmpty()) {
-//                requestBody.put("seed", seed);
-//            }
-//            else {
-//                requestBody.put("seed", "");
-//            }
-//
-//            sendHttpRequest(requestBody, "removeBackground");
-//        } catch (Exception e) {
-//            showError("Error preparing Remove Background request: " + e.getMessage());
-//        }
-//    }
-//
-//    private void sendRemoveBackgroundAndRelightRequest() {
-//        try {
-//            JSONObject requestBody = new JSONObject();
-//            requestBody.put("mode", "removeBackgroundAndRelight");
-//
-//            if (selectedImages.containsKey("replace_bg")) {
-//                requestBody.put("image", encodeImage(selectedImages.get("replace_bg")));
-//            }
-//
-//            requestBody.put("background_prompt", getTextInputValue("background_prompt"));
-//
-//            // Optional parameters
-//            requestBody.put("foreground_prompt", getOptionalString("foreground_prompt"));
-//            requestBody.put("negative_prompt", getOptionalString("replace_bg_negative"));
-//            requestBody.put("preserve_original_subject", getOptionalSeekBarValue("preserve_subject"));
-//            requestBody.put("original_background_depth", getOptionalSeekBarValue("background_depth"));
-//            requestBody.put("keep_original_background", keepOriginalBackgroundCheckbox.isChecked());
-//            requestBody.put("light_source_strength", getOptionalSeekBarValue("light_strength"));
-//            requestBody.put("light_source_direction", spinners.get("light_direction").getSelectedItem().toString());
-//            requestBody.put("output_format", spinners.get("output_format").getSelectedItem().toString());
-//
-//            String seed = getOptionalSeedValue("replace_bg_seed");
-//            if (!seed.isEmpty()) {
-//                requestBody.put("seed", seed);
-//            }
-//            else {
-//                requestBody.put("seed", "");
-//            }
-//
-//            sendHttpRequest(requestBody, "removeBackgroundAndRelight");
-//        } catch (Exception e) {
-//            showError("Error preparing Remove Background and Relight request: " + e.getMessage());
-//        }
-//    }
-
-
-//    private void sendHttpRequest(JSONObject requestBody, String mode) {
-//        String authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
-//        NetworkSender networkSender = new NetworkSender();
-//
-//        networkSender.sendHttpRequest("/generate", requestBody.toString(), authToken, new NetworkSender.ResponseCallback() {
-//            @Override
-//            public void onSuccess(String response) {
-//                runOnUiThread(() -> {
-//                    try {
-//                        JSONObject jsonResponse = new JSONObject(response);
-//
-//                        if (jsonResponse.has("error")) {
-//                            showError(jsonResponse.getString("error"));
-//                            return;
-//                        }
-//
-//                        String imageData = jsonResponse.getString("image");
-//                        if (imageData.startsWith("http")) {
-//                            loadImageFromUrl(imageData, imagePreviews.get(mode));
-//                        } else {
-//                            loadBase64Image(imageData, imagePreviews.get(mode));
-//                        }
-//                    } catch (Exception e) {
-//                        showError("Error processing response: " + e.getMessage());
-//                    }
-//                });
-//            }
-//
-//            @Override
-//            public void onError(String errorMessage) {
-//                runOnUiThread(() -> showError("Request failed: " + errorMessage));
-//            }
-//        });
-//    }
-
-    private void sendHttpRequest(JSONObject requestBody, String mode) {
-        String authToken = getIntent().getStringExtra("GOOGLE_TOKEN");
-        if (authToken == null || authToken.isEmpty()) {
-            showError("Google ID is missing. Please log in again.");
-            return;
-        }
-
-
-        NetworkSender networkSender = new NetworkSender();
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + authToken); // Assuming Bearer token
-
-
-
-        networkSender.sendHttpRequest("/generate", requestBody.toString(), authToken, new NetworkSender.ResponseCallback() {
-            @Override
-            public void onSuccess(String response) {
-                runOnUiThread(() -> {
-                    try {
-                        JSONObject jsonResponse = new JSONObject(response);
-
-                        // Check for server-side error messages
-                        if (jsonResponse.has("error")) {
-                            showError("Server Error: " + jsonResponse.getString("error"));
-                            return;
-                        }
-
-                        // Handle the "image" field in the response
-                        String imageData = jsonResponse.getString("image");
-                        ImageView targetImageView = imagePreviews.get(mode);
-
-                        if (imageData.startsWith("http")) {
-                            // Load image from URL
-                            loadImageFromUrl(imageData, targetImageView);
-                        } else {
-                            // Decode Base64-encoded image
-                            loadBase64Image(imageData, targetImageView);
-                        }
-
-                        showSuccess("Image generated successfully!");
-
-                    } catch (JSONException e) {
-                        showError("Response Parsing Error: " + e.getMessage());
-                    } catch (Exception e) {
-                        showError("Unexpected Error: " + e.getMessage());
-                    }
-                });
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                runOnUiThread(() -> {
-                    if (errorMessage != null && !errorMessage.isEmpty()) {
-                        showError("Request Failed: " + errorMessage);
-                    } else {
-                        showError("Request Failed: Unknown error occurred.");
-                    }
-                    setLoadingState(false);
-                });
-            }
-        });
-    }
-
-
-
-//    private boolean validateInputs() {
-//        String currentMode = getSelectedMode(modeSpinner.getSelectedItemPosition());
-//
-//        // Common validation for all modes - validate seed if provided
-//        String seedKey = currentMode + "_seed";
-//        String seedValue = getTextInputValue(seedKey);
-//        if (!seedValue.isEmpty()) {
-//            try {
-//                long seed = Long.parseLong(seedValue);
-//                if (seed < 0 || seed > MAX_SEED_VALUE) {
-//                    showError("Seed must be between 0 and " + MAX_SEED_VALUE);
-//                    return false;
-//                }
-//            } catch (NumberFormatException e) {
-//                showError("Invalid seed value");
-//                return false;
-//            }
-//        }
-//
-//
-//        // Seed validation for all modes
-////        String seedValue = "";
-//        switch (currentMode) {
-//            case "generate":
-//                seedValue = getTextInputValue("generate_seed");
-//                break;
-//            case "sketch":
-//                seedValue = getTextInputValue("sketch_seed");
-//                break;
-//            case "style":
-//                seedValue = getTextInputValue("style_seed");
-//                break;
-//            case "outpaint":
-//                seedValue = getTextInputValue("outpaint_seed");
-//                break;
-//            case "search_replace":
-//                seedValue = getTextInputValue("search_replace_seed");
-//                break;
-//            case "remove_bg":
-//                seedValue = getTextInputValue("remove_bg_seed");
-//                break;
-//            case "replace_bg":
-//                seedValue = getTextInputValue("replace_bg_seed");
-//                break;
-//        }
-//
-//        if (!seedValue.isEmpty()) {
-//            try {
-//                long seed = Long.parseLong(seedValue);
-//                if (seed < 0 || seed > MAX_SEED_VALUE) {
-//                    showError("Seed must be between 0 and " + MAX_SEED_VALUE);
-//                    return false;
-//                }
-//            } catch (NumberFormatException e) {
-//                showError("Invalid seed value");
-//                return false;
-//            }
-//        }
-//
-//
-//
-//        // Mode specific validation
-//        switch (currentMode) {
-//
-//            case "generate":
-//                if (getTextInputValue("generate").isEmpty()) {
-//                    showError("Please enter a prompt");
-//                    return false;
-//                }
-//                break;
-//
-//            case "sketch":
-//                if (getTextInputValue("sketch").isEmpty()) {
-//                    showError("Please enter a prompt");
-//                    return false;
-//                }
-//                if (!selectedImages.containsKey("sketch")) {
-//                    showError("Please upload a reference image");
-//                    return false;
-//                }
-//                break;
-//
-//            case "style":
-//                if (getTextInputValue("style").isEmpty()) {
-//                    showError("Please enter a style description");
-//                    return false;
-//                }
-//                break;
-//
-//            case "outpaint":
-//                if (getTextInputValue("outpaint").isEmpty()) {
-//                    showError("Please enter a prompt");
-//                    return false;
-//                }
-//                if (!selectedImages.containsKey("outpaint")) {
-//                    showError("Please upload an image to outpaint");
-//                    return false;
-//                }
-//
-//                // Validate outpaint dimensions
-//                try {
-//                    int left = Integer.parseInt(getTextInputValue("left_input"));
-//                    int right = Integer.parseInt(getTextInputValue("right_input"));
-//                    int up = Integer.parseInt(getTextInputValue("up_input"));
-//                    int down = Integer.parseInt(getTextInputValue("down_input"));
-//
-//                    // Enforce that all values cannot be 0
-//                    if (left == 0 && right == 0 && up == 0 && down == 0) {
-//                        showError("At least one outpaint direction must be non-zero");
-//                        return false;
-//                    }
-//
-//                    // Validate individual values
-//                    if (left < 0 || right < 0 || up < 0 || down < 0 ||
-//                            left > MAX_OUTPAINT_VALUE || right > MAX_OUTPAINT_VALUE ||
-//                            up > MAX_OUTPAINT_VALUE || down > MAX_OUTPAINT_VALUE) {
-//                        showError("Outpaint values must be between 0 and " + MAX_OUTPAINT_VALUE);
-//                        return false;
-//                    }
-//                } catch (NumberFormatException e) {
-//                    showError("Please enter valid numbers for outpaint dimensions");
-//                    return false;
-//                }
-//                break;
-//
-//            case "search_replace":
-//                if (getTextInputValue("search").isEmpty()) {
-//                    showError("Please enter what to search for");
-//                    return false;
-//                }
-//                if (getTextInputValue("replace").isEmpty()) {
-//                    showError("Please enter what to replace with");
-//                    return false;
-//                }
-//                if (!selectedImages.containsKey("search_replace")) {
-//                    showError("Please upload an image");
-//                    return false;
-//                }
-//                break;
-//
-//            case "remove_bg":
-//                if (!selectedImages.containsKey("remove_bg")) {
-//                    showError("Please upload an image");
-//                    return false;
-//                }
-//                break;
-//
-//            case "replace_bg":
-//                if (!selectedImages.containsKey("replace_bg")) {
-//                    showError("Please upload an image");
-//                    return false;
-//                }
-//                if (getTextInputValue("background_prompt").isEmpty()) {
-//                    showError("Please enter a background prompt");
-//                    return false;
-//                }
-//                break;
-//        }
-//
-//        return true;
-//    }
-
     private boolean validateInputs() {
         String currentMode = getSelectedMode(modeSpinner.getSelectedItemPosition());
 
@@ -1187,7 +703,7 @@ public class PromptActivity extends AppCompatActivity {
                 }
                 break;
 
-            case "searchAndReplace":
+            case "search_replace":
                 if (getTextInputValue("search").isEmpty()) {
                     showError("Please enter a search prompt for Search and Replace mode.");
                     return false;
@@ -1229,117 +745,48 @@ public class PromptActivity extends AppCompatActivity {
     }
 
     private boolean validateOutpaintDimensions() {
+        int left, right, up, down;
         try {
-            int left = Integer.parseInt(getTextInputValue("left_input"));
-            int right = Integer.parseInt(getTextInputValue("right_input"));
-            int up = Integer.parseInt(getTextInputValue("up_input"));
-            int down = Integer.parseInt(getTextInputValue("down_input"));
-
-            if (left == 0 && right == 0 && up == 0 && down == 0) {
-                showError("At least one outpaint direction must be non-zero.");
-                return false;
-            }
-
-            if (left < 0 || right < 0 || up < 0 || down < 0 ||
-                    left > MAX_OUTPAINT_VALUE || right > MAX_OUTPAINT_VALUE ||
-                    up > MAX_OUTPAINT_VALUE || down > MAX_OUTPAINT_VALUE) {
-                showError("Outpaint dimensions must be between 0 and " + MAX_OUTPAINT_VALUE + ".");
-                return false;
-            }
+            left = Integer.parseInt(getTextInputValue("left_input"));
         } catch (NumberFormatException e) {
-            showError("Invalid input for Outpaint dimensions.");
+            left = 0;
+        }
+        try {
+            right = Integer.parseInt(getTextInputValue("right_input"));
+        }
+        catch (NumberFormatException e){
+            right = 0;
+        }
+        try {
+            up = Integer.parseInt(getTextInputValue("up_input"));
+        }
+        catch (NumberFormatException e){
+            up = 0;
+        }
+        try {
+            down = Integer.parseInt(getTextInputValue("down_input"));
+        }
+        catch (NumberFormatException e){
+            down = 0;
+        }
+
+        if (left == 0 && right == 0 && up == 0 && down == 0) {
+            showError("At least one outpaint direction must be non-zero.");
+            return false;
+        }
+
+        if (left < 0 || right < 0 || up < 0 || down < 0 ||
+                left > MAX_OUTPAINT_VALUE || right > MAX_OUTPAINT_VALUE ||
+                up > MAX_OUTPAINT_VALUE || down > MAX_OUTPAINT_VALUE) {
+            showError("Outpaint dimensions must be between 0 and " + MAX_OUTPAINT_VALUE + ".");
             return false;
         }
         return true;
     }
 
-
-
-
-    private void loadImageFromUrl(String imageUrl, ImageView imageView) {
-        Picasso.get()
-                .load(imageUrl)
-                .into(imageView);
-        imageView.setVisibility(View.VISIBLE);
-    }
-
-
-    private void loadBase64Image(String base64Data, ImageView imageView) {
-        try {
-            byte[] decodedBytes = Base64.decode(base64Data, Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-            imageView.setImageBitmap(bitmap);
-            imageView.setVisibility(View.VISIBLE);
-        } catch (Exception e) {
-            showError("Error decoding image: " + e.getMessage());
-        }
-    }
-
-//    private float getSeekBarValue(String key) {
-//        SeekBar seekBar = seekBars.get(key);
-//        if (seekBar != null) {
-//            return (float) seekBar.getProgress() / seekBar.getMax();
-//        }
-//        return 0f;
-//    }
-
     private String getTextInputValue(String key) {
         EditText input = textInputs.get(key);
         return input != null ? input.getText().toString().trim() : "";
-    }
-
-    private void setLoadingState(boolean loading) {
-        isProcessing = loading;
-        loadingOverlay.setVisibility(loading ? View.VISIBLE : View.GONE);
-
-        // Disable/Enable UI elements
-        modeSpinner.setEnabled(!loading);
-        submitButton.setEnabled(!loading);
-
-        // Disable all text inputs
-        for (EditText input : textInputs.values()) {
-            if (input != null) {
-                input.setEnabled(!loading);
-            }
-        }
-
-        // Disable all seekbars
-        for (SeekBar seekBar : seekBars.values()) {
-            if (seekBar != null) {
-                seekBar.setEnabled(!loading);
-            }
-        }
-
-        // Disable all spinners
-        for (Spinner spinner : spinners.values()) {
-            if (spinner != null) {
-                spinner.setEnabled(!loading);
-            }
-        }
-
-        // Disable all upload buttons
-        for (String mode : modeLayouts.keySet()) {
-            Button uploadButton = findViewById(getUploadButtonId(mode));
-            if (uploadButton != null) {
-                uploadButton.setEnabled(!loading);
-            }
-        }
-
-        if (keepOriginalBackgroundCheckbox != null) {
-            keepOriginalBackgroundCheckbox.setEnabled(!loading);
-        }
-    }
-
-    private int getUploadButtonId(String mode) {
-        switch (mode) {
-            case "sketch": return R.id.sketch_upload_button;
-            case "style": return R.id.style_upload_button;
-            case "outpaint": return R.id.outpaint_upload_button;
-            case "search_replace": return R.id.search_replace_upload_button;
-            case "remove_bg": return R.id.remove_bg_upload_button;
-            case "replace_bg": return R.id.replace_bg_upload_button;
-            default: return 0;
-        }
     }
 
     // Add these methods to the class
@@ -1355,16 +802,6 @@ public class PromptActivity extends AppCompatActivity {
         }
         return "";
     }
-
-
-
-//    private String getOptionalSpinnerValue(String key) {
-//        Spinner spinner = spinners.get(key);
-//        if (spinner != null) {
-//            return spinner.getSelectedItem().toString();
-//        }
-//        return "";
-//    }
 
     private String getOptionalSeedValue(String key) {
         String value = getTextInputValue(key);
@@ -1394,10 +831,6 @@ public class PromptActivity extends AppCompatActivity {
     }
 
     private void showError(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    private void showSuccess(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 

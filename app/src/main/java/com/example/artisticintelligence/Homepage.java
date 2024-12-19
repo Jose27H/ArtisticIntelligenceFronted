@@ -43,7 +43,6 @@ public class Homepage extends AppCompatActivity {
         initializeNetworkSender();
 
         logout();
-//        checkIfAlreadySignedIn();
     }
 
 
@@ -63,19 +62,6 @@ public class Homepage extends AppCompatActivity {
 
     private void initializeNetworkSender() {
         networkSender = new NetworkSender();
-    }
-
-
-    private void checkIfAlreadySignedIn() {
-        GoogleSignInAccount account = authManager.getLastSignedInAccount();
-        if (account != null) {
-            Log.d(TAG, "User already signed in: " + account.getEmail());
-            onLoginSuccess(account);
-        } else {
-            Log.d(TAG, "User not signed in. Showing Google Sign-In button.");
-            googleSignInButton.setVisibility(View.VISIBLE);
-
-        }
     }
 
     private void signIn(View v) {
