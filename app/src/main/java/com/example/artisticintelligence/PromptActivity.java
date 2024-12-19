@@ -331,8 +331,6 @@ public class PromptActivity extends AppCompatActivity {
         // Disable mode spinner
         modeSpinner.setEnabled(!loading);
 
-        // Optionally change button appearance to show disabled state
-//        submitButton.setAlpha(loading ? 0.5f : 1.0f);
     }
 
     private void updateVisibleLayout(int position) {
@@ -380,22 +378,6 @@ public class PromptActivity extends AppCompatActivity {
             }
         });
     }
-
-//    private void showGeneratedImage(String base64Image) {
-//        try {
-//            byte[] decodedBytes = Base64.decode(base64Image, Base64.DEFAULT);
-//            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-//            ImageView imageView = new ImageView(this);
-//            imageView.setImageBitmap(bitmap);
-//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//            builder.setTitle("Generated Image");
-//            builder.setView(imageView);
-//            builder.setPositiveButton("Close", (dialog, which) -> dialog.dismiss());
-//            builder.show();
-//        } catch (Exception e) {
-//            Toast.makeText(this, "Error displaying image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     private void showGeneratedImage(String base64Image) {
         try {
@@ -449,17 +431,6 @@ public class PromptActivity extends AppCompatActivity {
 
     // Add permission request for older Android versions
     private static final int PERMISSION_REQUEST_CODE = 1001;
-
-    private void checkStoragePermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                        PERMISSION_REQUEST_CODE);
-            }
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

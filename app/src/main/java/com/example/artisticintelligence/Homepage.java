@@ -45,11 +45,8 @@ public class Homepage extends AppCompatActivity {
         logout();
     }
 
-
-
         private void initializeViews() {
             googleSignInButton = findViewById(R.id.google_sign_in_button);
-
 
             googleSignInButton.setOnClickListener(this:: signIn);
 
