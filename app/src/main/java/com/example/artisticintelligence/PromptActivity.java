@@ -28,8 +28,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PromptActivity extends AppCompatActivity {
-    private static final long MAX_SEED_VALUE = 4294967294L;
-    private static final int MAX_OUTPAINT_VALUE = 2000;
+    // Constants
+    private static final long MAX_SEED_VALUE = 4294967294L; // Maximum seed value for generation
+    private static final int MAX_OUTPAINT_VALUE = 2000; // Maximum outpainting dimension
 
     // UI Components
     private Spinner modeSpinner;
@@ -48,11 +49,12 @@ public class PromptActivity extends AppCompatActivity {
     // Activity Result Launcher for image selection
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
-    // New UI component references
+    // Additional UI Components
     private Map<String, SeekBar> seekBars;
     private Map<String, Spinner> spinners;
     private CheckBox keepOriginalBackgroundCheckbox;
 
+    // User Information
     private String userId;
     private String authToken;
 
@@ -63,17 +65,18 @@ public class PromptActivity extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_prompt);
+        setContentView(R.layout.activity_prompt); // Set the layout for the activity
 
-        initializeMaps();
-        initializeViews();
-        setupImagePicker();
-        setupModeSpinner();
-        setupSpinners();
-        setupSubmitButton();
+        initializeMaps(); // Initialize data structures
+        initializeViews(); // Initialize UI components
+        setupImagePicker(); // Set up image picker for file selection
+        setupModeSpinner(); // Configure the mode selection spinner
+        setupSpinners(); // Configure other spinners in the UI
+        setupSubmitButton(); // Set up the submit button
     }
 
     private void initializeMaps() {
+        // Initialize maps for managing UI components
         modeLayouts = new HashMap<>();
         imagePreviews = new HashMap<>();
         selectedImages = new HashMap<>();
@@ -83,6 +86,7 @@ public class PromptActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
+        // Bind UI components to their respective views
         modeSpinner = findViewById(R.id.mode_spinner);
         submitButton = findViewById(R.id.submit_button);
         loadingOverlay = findViewById(R.id.loading_overlay);
@@ -143,12 +147,9 @@ public class PromptActivity extends AppCompatActivity {
         spinners.put("output_format_outpaint", findViewById(R.id.output_format_outpaint));
         spinners.put("output_format_search_replace", findViewById(R.id.output_format_search_replace));
         spinners.put("output_format_remove_bg", findViewById(R.id.output_format_remove_bg));
-
         spinners.put("light_direction", findViewById(R.id.light_source_direction));
 
-
-        // Initialize checkboxes
-        keepOriginalBackgroundCheckbox = findViewById(R.id.keep_original_background);
+        keepOriginalBackgroundCheckbox = findViewById(R.id.keep_original_background); // Initialize checkbox for background preservation
 
 
         // Setup upload buttons
@@ -161,6 +162,7 @@ public class PromptActivity extends AppCompatActivity {
     }
 
     private void setupImagePicker() {
+        // Configure image picker for selecting images from storage
         imagePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -172,10 +174,10 @@ public class PromptActivity extends AppCompatActivity {
 
                             // Check if the file extension is supported
                             if (isValidImageFormat(fileExtension)) {
-                                selectedImages.put(currentUploadMode, selectedImageUri);
+                                selectedImages.put(currentUploadMode, selectedImageUri); // Store selected image URI
                                 ImageView preview = imagePreviews.get(currentUploadMode);
                                 if (preview != null) {
-                                    preview.setImageURI(selectedImageUri);
+                                    preview.setImageURI(selectedImageUri); // Show image preview
                                     preview.setVisibility(View.VISIBLE);
                                 }
                             } else {
@@ -240,7 +242,7 @@ public class PromptActivity extends AppCompatActivity {
 
     private void setupModeSpinner() {
 
-        // spinner for generation modes
+        // Configure spinner for selecting modes
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.generation_modes,
                 android.R.layout.simple_spinner_item);
@@ -250,7 +252,7 @@ public class PromptActivity extends AppCompatActivity {
         modeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateVisibleLayout(position);
+                updateVisibleLayout(position); // Update the layout based on the selected mode
             }
 
             @Override
